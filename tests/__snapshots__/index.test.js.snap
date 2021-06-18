@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should contain custom headers 1`] = `
+Object {
+  "Authorization": "Basic Zm9vOmJhcg==",
+  "user-agent": "foo",
+}
+`;
+
+exports[`startSauceConnect should not overwrite rest-url if given as a parameter 1`] = `
+Array [
+  Array [
+    "/foo/bar",
+    Array [
+      "--tunnel-identifier=my-tunnel",
+      "--rest-url=https://us1.api.testobject.com/sc/rest/v1",
+      "--user=foo",
+      "--api-key=bar",
+    ],
+  ],
+]
+`;
+
+exports[`startSauceConnect should start sauce connect with proper parsed args 1`] = `
+Array [
+  Array [
+    "/foo/bar",
+    Array [
+      "--proxy-tunnel=abc",
+      "--tunnel-identifier=my-tunnel",
+      "--user=foo",
+      "--api-key=bar",
+      "--rest-url=https://us-east-1.saucelabs.com/rest/v1",
+    ],
+  ],
+]
+`;

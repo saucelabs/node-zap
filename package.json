@@ -1,0 +1,77 @@
+{
+  "name": "@saucelabs/zap",
+  "version": "0.0.1",
+  "author": "Christian Bromann <christian@saucelabs.com>",
+  "description": "OWASP ZapProxy bindings for Node.js",
+  "homepage": "https://github.com/saucelabs/node-zap",
+  "license": "Apache-2.0",
+  "contributors": [
+    "christian-bromann <christian@saucelabs.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/saucelabs/node-zap.git"
+  },
+  "main": "./build/index",
+  "bin": {
+    "sl": "./bin/zap"
+  },
+  "typings": "./build/index.d.ts",
+  "scripts": {
+    "build": "run-s clean compile generate:typings",
+    "clean": "rm -rf ./build ./coverage",
+    "compile": "babel src -d build",
+    "eslint": "eslint -c ./.eslintrc.js ./src/**/*.js ./tests/**/*.js",
+    "generate:docs": "babel-node ./scripts/generate-docs",
+    "generate:typings": "babel-node ./scripts/generate-typings",
+    "prepublishOnly": "NODE_ENV=production run-s build generate:typings",
+    "release": "release-it --github.release",
+    "release:ci": "npm run release -- --ci --npm.skipChecks --no-git.requireCleanWorkingDir",
+    "release:patch": "npm run release -- patch",
+    "release:minor": "npm run release -- minor",
+    "release:major": "npm run release -- major",
+    "test": "run-s build eslint test:typings test:unit",
+    "test:unit": "jest --coverage",
+    "test:typings": "run-s test:typings:*",
+    "test:typings:setup": "mkdir -p ./tests/typings/node_modules/saucelabs && cp ./package.json ./tests/typings/node_modules/saucelabs && cp -r ./build ./tests/typings/node_modules/saucelabs",
+    "test:typings:run": "cd ./tests/typings && tsc --incremental",
+    "test:typings:cleanup": "rm -r ./tests/typings/node_modules",
+    "watch": "npm run compile -- --watch"
+  },
+  "dependencies": {
+    "change-case": "^4.1.1",
+    "got": "^11.7.0",
+    "tunnel": "0.0.6",
+    "yargs": "^16.0.3"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "4.27.0",
+    "@typescript-eslint/parser": "4.27.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-import": "^2.22.1",
+    "jest": "^25.5.4",
+    "npm-run-all": "^4.1.5",
+    "release-it": "^14.2.2",
+    "rimraf": "^3.0.2",
+    "source-map-support": "^0.5.19",
+    "swagger-typescript-codegen": "^3.2.1",
+    "ts-jest": "^27.0.3",
+    "typescript": "^4.0.3"
+  },
+  "jest": {
+    "testMatch": [
+      "<rootDir>/tests/**/*.test.js"
+    ],
+    "coverageDirectory": "./coverage/",
+    "collectCoverage": true,
+    "coverageThreshold": {
+      "global": {
+        "branches": 93,
+        "functions": 100,
+        "lines": 98,
+        "statements": 98
+      }
+    },
+    "testEnvironment": "node"
+  }
+}
