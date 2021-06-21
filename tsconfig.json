@@ -71,6 +71,9 @@
   },
   "exclude": [
     "tests/**",
+    "example",
+    "scripts",
+    "build",
     "node_modules"
   ]
 }
