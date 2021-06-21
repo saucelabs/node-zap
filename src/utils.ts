@@ -55,7 +55,7 @@ export function getAPIHost (servers: OpenAPIV3.ServerObject[], options: Options)
  */
 export function toString (scope: APIBinding) {
     return `${TO_STRING_TAG} {
-  username: '${scope.username}',
+  username: '${scope.user}',
   key: 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXX${scope['_accessKey'].slice(-6)}',
   region: '${scope['_options'].region}'
 }`

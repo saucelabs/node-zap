@@ -13,6 +13,7 @@ const protocols: OpenAPIV3.Document[] = [
     require('./api/sauce.json')
 ]
 
+export const API_DOMAINS = new Set()
 const protocolFlattened: Map<string, ProtocolCommand> = new Map()
 const parametersFlattened: Map<string, OpenAPIV3.ParameterObject> = new Map()
 for (const { paths, servers, info } of protocols) {
@@ -21,7 +22,7 @@ for (const { paths, servers, info } of protocols) {
     }
 
     const params = Object.values(paths)
-        .filter((path) => Boolean(path))
+        .filter((path) => path && path.parameters)
         .map((path) => path!.parameters as OpenAPIV3.ParameterObject[]).flat()
     for (const param of params) {
         parametersFlattened.set(param.name, param)
@@ -29,10 +30,19 @@ for (const { paths, servers, info } of protocols) {
 
     for (const [endpoint, methods] of Object.entries(paths as OpenAPIV3.PathsObject<OpenAPIV3.OperationObject>)) {
         for (const [method, description] of Object.entries(methods as Record<OpenAPIV3.HttpMethods, OpenAPIV3.OperationObject>)) {
+            if (method === 'parameters') {
+                continue
+            }
+
             if (!description.operationId) {
                 throw new Error(`No "operationId" found in endpoint ${endpoint}`)
             }
 
+            if (!description.tags || !description.tags![0]) {
+                throw new Error(`Expected command "${description.operationId}" to be tagged with its domain`)
+            }
+
+            API_DOMAINS.add(description.tags![0])
             let commandName = camelCase(description.operationId)
             /**
              * mark commands as depcrecated in the command names
@@ -97,5 +107,3 @@ export const CLI_PARAMS = [{
     default: DEFAULT_OPTIONS.region,
     description: 'your Sauce Labs datacenter region, the following regions are available: `us-west-1` (short `us`), `eu-central-1` (short `eu`)'
 }]
-const CLI_PARAM_KEYS = CLI_PARAMS.map((param) => param.name)
-const CLI_PARAM_ALIASES = CLI_PARAMS.map((param) => param.alias).filter(Boolean)

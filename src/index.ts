@@ -8,30 +8,39 @@ import {
 } from './utils'
 import {
     PROTOCOL_MAP, DEFAULT_OPTIONS, SYMBOL_INSPECT, SYMBOL_TOSTRING,
-    SYMBOL_ITERATOR, TO_STRING_TAG
+    SYMBOL_ITERATOR, TO_STRING_TAG, API_DOMAINS
 } from './constants'
 import { Options, ProtocolCommand } from './types'
 
-export default class SauceLabs {
-    public username: string
+export default class Zap {
+    public user: string
     public region: string
+    public sessionId?: string
 
+    private _options: Options
     private _accessKey: string
     private _api: typeof got
+    private _proxy: Zap
 
-    constructor (private _options: Options) {
-        this._options = Object.assign({}, DEFAULT_OPTIONS, _options)
-        this.username = this._options.user
+    constructor (public options?: Partial<Options>) {
+        const opts = Object.assign({}, DEFAULT_OPTIONS, options || {})
+
+        if (!opts.user || !opts.key) {
+            throw new Error('"user" and "key" parameters')
+        }
+
+        this._options = opts as Options
         this.region = this._options.region
+        this.user = this._options.user
 
         this._accessKey = this._options.key
         this._api = got.extend({
-            username: this.username,
+            username: this.user,
             password: this._accessKey,
             followRedirect: true,
             headers: {
                 ...this._options.headers,
-                Authorization: `Basic ${Buffer.from(`${this.username}:${this._accessKey}`).toString('base64')}`
+                Authorization: `Basic ${Buffer.from(`${this.user}:${this._accessKey}`).toString('base64')}`
             },
             agent: {
                 https: tunnel.httpsOverHttps({
@@ -39,19 +48,21 @@ export default class SauceLabs {
                         host: `zap.${getRegionSubDomain(this._options)}.saucelabs.com`,
                         port: 443
                     }
-                }) as any
+                })
             }
         })
-
-        return new Proxy({
-            username: this.username,
+        this._proxy = new Proxy({
+            user: this.user,
             key: `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXX${(this._accessKey || '').slice(-6)}`,
             region: this._options.region,
             headers: this._options.headers
-        }, { get: this.get.bind(this) }) as any
+        } as any, { get: this._get.bind(this) })
+
+        // @ts-ignore
+        return this._proxy
     }
 
-    get (_: never, propName: string | symbol) {
+    private _get (scope: { domain: string }, propName: string | symbol): any {
         /**
          * print to string output
          * https://nodejs.org/api/util.html#util_util_inspect_custom
@@ -73,18 +84,32 @@ export default class SauceLabs {
          * return instance iterator
          * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol/iterator
          */
-        if (propName === SYMBOL_ITERATOR) {
+        if (propName === SYMBOL_ITERATOR || typeof propName !== 'string') {
             return
         }
 
         /**
          * allow to return publicly registered class properties
          */
-        if (typeof propName === 'string' && (this as any)[propName]) {
+        if ((this as any)[propName]) {
             return !propName.startsWith('_') ? (this as any)[propName] : undefined
         }
 
-        if (!PROTOCOL_MAP.has(propName as string)) {
+        /**
+         * check if domain is being accessed
+         */
+        if (API_DOMAINS.has(propName)) {
+            return new Proxy({ domain: propName }, { get: this._get.bind(this) })
+        }
+
+        const commandNameAsView = `${scope.domain}View${propName.slice(0, 1).toUpperCase()}${propName.slice(1)}`
+        const commandNameAsAction = `${scope.domain}Action${propName.slice(0, 1).toUpperCase()}${propName.slice(1)}`
+        const commandName = PROTOCOL_MAP.has(commandNameAsView)
+            ? commandNameAsView
+            : PROTOCOL_MAP.has(commandNameAsAction)
+                ? commandNameAsAction
+                : scope.domain === 'session' ? propName : null
+        if (!commandName) {
             /**
              * just return if propName is a symbol (Node 8 and lower)
              */
@@ -93,6 +118,13 @@ export default class SauceLabs {
                 return
             }
             throw new Error(`Couldn't find API endpoint for command "${propName}"`)
+        }
+
+        /**
+         * ensure user is authenticated
+         */
+        if (scope.domain !== 'session' && !this.sessionId) {
+            throw new Error(`Couldn't call command "${propName}", reason: not authenticated! Please call \`zap.session.new({ ... })\` first to authenticate with Sauce Labs cloud.`)
         }
 
         return async (...args: any[]) => {
@@ -167,8 +199,19 @@ export default class SauceLabs {
                             ? { searchParams: body }
                             : { json: body }
                     ),
-                    responseType: 'json'
-                })
+                    responseType: 'json',
+                    headers: {
+                        'X-ZAP-API-Key': this.sessionId
+                    }
+                }) as any
+
+                /**
+                 * attach session id to the scope
+                 */
+                if (typeof response.body.sessionId) {
+                    this.sessionId = response.body.sessionId
+                }
+
                 return response.body
             } catch (err) {
                 throw new Error(`Failed calling ${propName as string}: ${err.message}, ${err.response && err.response.body}`)
