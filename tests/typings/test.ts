@@ -1,4 +1,5 @@
-import SauceLabs from 'saucelabs'
+// @ts-ignore
+import SauceLabs from '@saucelabs/zap'
 
 const api = new SauceLabs({
     region: 'eu',

@@ -1,7 +1,7 @@
 import type { OpenAPIV3 } from 'openapi-types'
 
 export interface ProtocolCommand {
-    method: string
+    method: OpenAPIV3.HttpMethods
     endpoint: string
     description: OpenAPIV3.OperationObject
     servers: OpenAPIV3.ServerObject[]

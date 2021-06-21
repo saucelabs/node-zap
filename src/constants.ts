@@ -3,25 +3,36 @@ import os from 'os'
 import type { OpenAPIV3 } from 'openapi-types'
 
 import type { ProtocolCommand } from './types'
-import { version } from '../package.json'
+
+const { version } = require('../package.json')
 
 export const BINDING_VERSION_NOTE = `node-zap v${version}`
 
 const protocols: OpenAPIV3.Document[] = [
-    require('../apis/zap.json'),
-    require('../apis/sauce.json')
+    require('./api/zap.json'),
+    require('./api/sauce.json')
 ]
 
 const protocolFlattened: Map<string, ProtocolCommand> = new Map()
 const parametersFlattened: Map<string, OpenAPIV3.ParameterObject> = new Map()
-for (const { paths, servers, components } of protocols) {
-    const params = Object.values(paths).map((path) => path.parameters as OpenAPIV3.ParameterObject[]).flat()
+for (const { paths, servers, info } of protocols) {
+    if (!servers) {
+        throw new Error(`No "servers" property found in API ${info.title}`)
+    }
+
+    const params = Object.values(paths)
+        .filter((path) => Boolean(path))
+        .map((path) => path!.parameters as OpenAPIV3.ParameterObject[]).flat()
     for (const param of params) {
         parametersFlattened.set(param.name, param)
     }
 
     for (const [endpoint, methods] of Object.entries(paths as OpenAPIV3.PathsObject<OpenAPIV3.OperationObject>)) {
         for (const [method, description] of Object.entries(methods as Record<OpenAPIV3.HttpMethods, OpenAPIV3.OperationObject>)) {
+            if (!description.operationId) {
+                throw new Error(`No "operationId" found in endpoint ${endpoint}`)
+            }
+
             let commandName = camelCase(description.operationId)
             /**
              * mark commands as depcrecated in the command names
@@ -40,7 +51,7 @@ for (const { paths, servers, components } of protocols) {
 
             protocolFlattened.set(
                 commandName,
-                { method, endpoint, description, servers }
+                { method: method as OpenAPIV3.HttpMethods, endpoint, description, servers }
             )
         }
     }

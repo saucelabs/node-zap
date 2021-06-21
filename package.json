@@ -20,10 +20,10 @@
   "scripts": {
     "build": "run-s clean compile generate:typings",
     "clean": "rm -rf ./build ./coverage",
-    "compile": "babel src -d build",
+    "compile": "tsc -p ./tsconfig.json",
     "eslint": "eslint -c ./.eslintrc.js ./src/**/*.js ./tests/**/*.js",
-    "generate:docs": "babel-node ./scripts/generate-docs",
-    "generate:typings": "babel-node ./scripts/generate-typings",
+    "generate:docs": "ts-node ./scripts/generate-docs",
+    "generate:typings": "ts-node ./scripts/generate-typings",
     "postinstall": "./scripts/downloadProtocol.js",
     "prepublishOnly": "NODE_ENV=production run-s build generate:typings",
     "release": "release-it --github.release",
@@ -47,6 +47,7 @@
     "yargs": "^16.0.3"
   },
   "devDependencies": {
+    "@types/tunnel": "0.0.2",
     "@typescript-eslint/eslint-plugin": "4.27.0",
     "@typescript-eslint/parser": "4.27.0",
     "eslint": "^6.8.0",
@@ -59,6 +60,7 @@
     "source-map-support": "^0.5.19",
     "swagger-typescript-codegen": "^3.2.1",
     "ts-jest": "^27.0.3",
+    "ts-node": "^10.0.0",
     "typescript": "^4.0.3"
   },
   "jest": {

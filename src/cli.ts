@@ -39,8 +39,14 @@ export const run = () => {
                 yargs.positional(param.name, paramDescription)
             }
         }, async (argv) => {
-            const { user, key, headless, region, proxy, tld } = Object.assign({}, DEFAULT_OPTIONS, argv)
-            const api = new SauceLabs({ user, key, headless, region, proxy, tld })
+            const { user, key, region } = Object.assign({}, DEFAULT_OPTIONS, argv)
+
+            if (!user || !key) {
+                console.error('"user" and "key" parameters required')
+                return process.exit(1)
+            }
+
+            const api = new SauceLabs({ user, key, region }) as any
             const requiredParams = params.filter((p) => p.required).map((p) => argv[p.name])
 
             try {
