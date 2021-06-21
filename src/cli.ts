@@ -1,7 +1,9 @@
 import yargs from 'yargs'
-import { USAGE, CLI_PARAMS, EPILOG, PROTOCOL_MAP, DEFAULT_OPTIONS, SAUCE_VERSION_NOTE } from './constants'
+
+import { USAGE, CLI_PARAMS, EPILOG, PROTOCOL_MAP, DEFAULT_OPTIONS, BINDING_VERSION_NOTE } from './constants'
 import { getParameters } from './utils'
-import SauceLabs from './'
+import SauceLabs from '.'
+import { OpenAPIV3 } from 'openapi-types'
 
 export const run = () => {
     let argv = yargs.usage(USAGE)
@@ -9,10 +11,10 @@ export const run = () => {
         .demandCommand()
         .commandDir('commands')
         .help()
-        .version(SAUCE_VERSION_NOTE)
+        .version(BINDING_VERSION_NOTE)
 
     for (const [commandName, options] of PROTOCOL_MAP) {
-        const params = getParameters(options.description.parameters)
+        const params = getParameters(options.description.parameters as OpenAPIV3.ReferenceObject[])
         const command = `${commandName} ${params.map((p) => (
             p.required ? `<${p.name}>` : `[${p.name}]`
         )).join(' ')}`
@@ -24,13 +26,14 @@ export const run = () => {
         )
         yargs.command(command.trim(), description, (yargs) => {
             for (const param of params) {
+                const schema = param.schema as OpenAPIV3.SchemaObject
                 const paramDescription = {
                     describe: param.description,
-                    type: param.type
-                }
+                    type: schema.type
+                } as any
 
-                if (typeof param.default !== 'undefined') {
-                    paramDescription.default = param.default
+                if (typeof schema.default !== 'undefined') {
+                    paramDescription.default = schema.default
                 }
 
                 yargs.positional(param.name, paramDescription)

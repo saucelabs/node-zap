@@ -1,0 +1,113 @@
+openapi: "3.0.2"
+info:
+  title: Sauce ZAP API
+  description: Extended Zap API to run Owasp Zap in the cloud.
+  contact:
+    name: Open Source Program Office
+    url: https://opensource.saucelabs.com
+    email: opensource@saucelabs.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: Dev Build
+servers:
+  - url: http://sauce
+    description: The URL while proxying through ZAP.
+components:
+  securitySchemes:
+    apiKeyHeader:
+      type: apiKey
+      name: X-ZAP-API-Key
+      in: header
+    apiKeyQuery:
+      type: apiKey
+      name: apikey
+      in: query
+  schemas:
+    Error:
+      type: object
+      required:
+      - message
+      - code
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+          minimum: 100
+          maximum: 600
+    SessionResponse:
+      type: object
+      required:
+      - sessionId
+      properties:
+        sessionId:
+          type: string
+security:
+  - apiKeyHeader: []
+  - apiKeyQuery: []
+paths:
+  /session/:
+    post:
+      description: >-
+        Create an Owasp Zap session in the cloud
+      operationId: newSession
+      tags:
+        - session
+      responses:
+        default:
+          description: session response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionResponse"
+        500:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: commandTimeout
+        in: body
+        required: false
+        deprecated: false
+        description: "timeout to close the session when no command was received"
+        schema:
+          type: integer
+      - name: loadFromSessionId
+        in: body
+        required: false
+        deprecated: false
+        description: "initiate session with existing Zap session"
+        schema:
+          type: string
+  /session/{sessionId}:
+    delete:
+      description: >-
+        Delete a Owasp Zap session in the cloud
+      operationId: deleteSession
+      tags:
+        - session
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        500:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: baseurl
+        in: url
+        required: true
+        deprecated: false
+        description: "session id to delete"
+        schema:
+          type: string
