@@ -103,11 +103,3 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-    parameters:
-      - name: baseurl
-        in: url
-        required: true
-        deprecated: false
-        description: "session id to delete"
-        schema:
-          type: string

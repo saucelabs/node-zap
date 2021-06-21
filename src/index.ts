@@ -34,12 +34,13 @@ export default class Zap {
         this.user = opts.user
 
         this._accessKey = this._options.key
-        console.log('YOO');
-
         this._api = got.extend({
-            headers: opts.headers,
+            headers: {
+                ...opts.headers,
+                authorization: 'eyJraWQiOiJyZXN0byIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjUsaddsasadsda2In0.eyJleHAiOjE1ODg4NTQ3NTUsImlhdCI6MTU4ODg1Mjk1NSwianRpIjoiZjI5ZDU3NjgtZmFmOS00YTZjLWFmMDUtMDU5NDlkZGZlYTY2IiwidXNlcm5hbWUiOiJjYi1vbmJvYXJkaW5nIn0.tx4OpTlLC9fQ76anUheBQTd1Oz_N1cnsoEiaPW1mCiIs'
+            },
             agent: {
-                http: tunnel.httpOverHttps({
+                http: tunnel.httpsOverHttps({
                     proxy: {
                         host: `zap.${getRegionSubDomain(this._options)}.saucelabs.com`,
                         port: 443
@@ -125,7 +126,7 @@ export default class Zap {
         }
 
         return async (...args: any[]) => {
-            const { description, method, endpoint, servers } = PROTOCOL_MAP.get(propName as string) as ProtocolCommand
+            const { description, method, endpoint, servers } = PROTOCOL_MAP.get(commandName) as ProtocolCommand
             const params = getParameters(description.parameters)
             const pathParams = params.filter(p => p.in === 'path')
 
@@ -198,9 +199,7 @@ export default class Zap {
                     ),
                     responseType: 'json',
                     ...(!this.sessionId ? {} : {
-                        headers: {
-                            'X-ZAP-API-Key': this.sessionId
-                        }
+                        headers: { 'x-zap-api-key': this.sessionId }
                     })
                 }) as any
 
@@ -213,8 +212,6 @@ export default class Zap {
 
                 return response.body
             } catch (err) {
-                console.log(err.body);
-
                 throw new Error(`Failed calling ${propName as string}: ${err.message}, ${err.response && err.response.body}`)
             }
         }
