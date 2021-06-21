@@ -189,7 +189,7 @@ export default class Zap {
             /**
              * make request
              */
-            const uri = getAPIHost(servers, this._options) + url
+            const uri = `https://zap.${getRegionSubDomain(this._options)}.saucelabs.com${url}`
             try {
                 const response = await this._api[method as 'get'](uri, {
                     ...(
