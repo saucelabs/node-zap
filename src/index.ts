@@ -30,20 +30,16 @@ export default class Zap {
         }
 
         this._options = opts as Options
-        this.region = this._options.region
-        this.user = this._options.user
+        this.region = opts.region
+        this.user = opts.user
 
         this._accessKey = this._options.key
+        console.log('YOO');
+
         this._api = got.extend({
-            username: this.user,
-            password: this._accessKey,
-            followRedirect: true,
-            headers: {
-                ...this._options.headers,
-                Authorization: `Basic ${Buffer.from(`${this.user}:${this._accessKey}`).toString('base64')}`
-            },
+            headers: opts.headers,
             agent: {
-                https: tunnel.httpsOverHttps({
+                http: tunnel.httpOverHttps({
                     proxy: {
                         host: `zap.${getRegionSubDomain(this._options)}.saucelabs.com`,
                         port: 443
@@ -51,6 +47,7 @@ export default class Zap {
                 })
             }
         })
+
         this._proxy = new Proxy({
             user: this.user,
             key: `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXX${(this._accessKey || '').slice(-6)}`,
@@ -200,9 +197,11 @@ export default class Zap {
                             : { json: body }
                     ),
                     responseType: 'json',
-                    headers: {
-                        'X-ZAP-API-Key': this.sessionId
-                    }
+                    ...(!this.sessionId ? {} : {
+                        headers: {
+                            'X-ZAP-API-Key': this.sessionId
+                        }
+                    })
                 }) as any
 
                 /**
@@ -214,6 +213,8 @@ export default class Zap {
 
                 return response.body
             } catch (err) {
+                console.log(err.body);
+
                 throw new Error(`Failed calling ${propName as string}: ${err.message}, ${err.response && err.response.body}`)
             }
         }

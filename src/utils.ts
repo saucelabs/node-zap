@@ -1,6 +1,6 @@
 import type { OpenAPIV3 } from 'openapi-types'
 
-import { TO_STRING_TAG, PARAMETERS_MAP, DEFAULT_PROTOCOL, DEFAULT_OPTIONS } from './constants'
+import { TO_STRING_TAG, PARAMETERS_MAP } from './constants'
 import type { Options } from './types'
 import type APIBinding from './index'
 
@@ -27,12 +27,7 @@ export function getRegionSubDomain (options: { region?: string } = {}) {
  */
 export function getAPIHost (servers: OpenAPIV3.ServerObject[], options: Options) {
     const server = servers[0] as OpenAPIV3.ServerObject
-    const apiUrl = server.url
-
-    /**
-     * allows to set an arbitrary host (for internal use only)
-     */
-    let host = DEFAULT_PROTOCOL + apiUrl.replace(DEFAULT_PROTOCOL, '')
+    let host = server.url
 
     for (const [option, value] of Object.entries(server.variables || {})) {
         /**
