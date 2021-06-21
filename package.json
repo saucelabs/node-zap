@@ -24,7 +24,7 @@
     "eslint": "eslint -c ./.eslintrc.js ./src/**/*.js ./tests/**/*.js",
     "generate:docs": "ts-node ./scripts/generate-docs",
     "generate:typings": "ts-node ./scripts/generate-typings",
-    "postinstall": "./scripts/downloadProtocol.js",
+    "postinstall": "./scripts/setup.js",
     "prepublishOnly": "NODE_ENV=production run-s build generate:typings",
     "release": "release-it --github.release",
     "release:ci": "npm run release -- --ci --npm.skipChecks --no-git.requireCleanWorkingDir",
