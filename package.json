@@ -1,6 +1,6 @@
 {
   "name": "@saucelabs/zap",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": "Christian Bromann <christian@saucelabs.com>",
   "description": "OWASP ZapProxy bindings for Node.js",
   "homepage": "https://github.com/saucelabs/node-zap",
