@@ -24,7 +24,7 @@ export default class Zap {
         const opts = Object.assign({}, DEFAULT_OPTIONS, options || {})
 
         if (!opts.user || !opts.key) {
-            throw new Error('"user" and "key" parameters')
+            throw new Error('"user" or "key" parameters missing')
         }
 
         this._options = opts as Options
@@ -187,7 +187,7 @@ export default class Zap {
                 /**
                  * attach session id to the scope
                  */
-                if (typeof response.body.sessionId === 'string') {
+                if (response && response.body && typeof response.body.sessionId === 'string') {
                     this.sessionId = response.body.sessionId
                 }
 

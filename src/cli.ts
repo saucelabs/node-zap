@@ -3,6 +3,7 @@ import yargs from 'yargs'
 import { USAGE, CLI_PARAMS, EPILOG, PROTOCOL_MAP, DEFAULT_OPTIONS, BINDING_VERSION_NOTE } from './constants'
 import SauceLabs from '.'
 import { OpenAPIV3 } from 'openapi-types'
+import { camelCase } from 'change-case'
 
 export const run = () => {
     let argv = yargs.usage(USAGE)
@@ -46,9 +47,15 @@ export const run = () => {
 
             const api = new SauceLabs({ user, key, region }) as any
             const requiredParams = options.parameters.filter((p) => p.required).map((p) => argv[p.name])
+            const command = PROTOCOL_MAP.get(commandName)
+            const [domain, actionType, shortCommandName] = commandName.split(/(Action|View)/)
+
+            if (!command) {
+                throw new Error(`Command "${commandName}" not found`)
+            }
 
             try {
-                const result = await api[commandName](...requiredParams, argv)
+                const result = await api[domain][camelCase(shortCommandName)](argv)
 
                 if (typeof result === 'object') {
                     // eslint-disable-next-line no-console
@@ -60,12 +67,16 @@ export const run = () => {
             } catch (error) {
                 // eslint-disable-next-line no-console
                 console.error(error)
-                return process.exit(1)
+                /* istanbul ignore next */
+                return process.env.JEST_WORKER_ID
+                    ? error
+                    : process.exit(1)
             }
 
             /**
              * only return for testing purposes
              */
+            /* istanbul ignore next */
             if (process.env.JEST_WORKER_ID) {
                 return api
             }
