@@ -30,7 +30,7 @@
     "release:minor": "npm run release -- minor",
     "release:major": "npm run release -- major",
     "test": "run-s build eslint test:unit",
-    "test:unit": "jest --coverage",
+    "test:unit": "cp -r build/api src/api && jest --coverage",
     "watch": "npm run compile -- --watch"
   },
   "dependencies": {

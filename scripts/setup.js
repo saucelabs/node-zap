@@ -19,8 +19,9 @@ async function download ([protocolName, protocolUrl]) {
     const api = await yaml.load(apiYaml.body)
     const apiDir = path.join(__dirname, '..', 'build', 'api')
 
-    if (!fs.promises.access(apiDir)) {
-        await fs.promises.mkdir(apiDir)
+    const hasAccess = await fs.promises.access(apiDir).then(() => true, () => false)
+    if (!hasAccess) {
+        await fs.promises.mkdir(apiDir, { recursive: true })
     }
 
     await fs.promises.writeFile(
