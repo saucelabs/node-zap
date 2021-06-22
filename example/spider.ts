@@ -4,12 +4,11 @@ const urlToScan = 'https://www.saucedemo.com/'
 
 ;(async () => {
     const zaproxy = new SauceZap()
-    await zaproxy.session.newSession(1000 * 60)
-
-    const { scan } = await zaproxy.spider.scan(urlToScan)
+    await zaproxy.session.newSession({ commandTimeout: 1000 * 60 })
+    const { scan } = await zaproxy.spider.scan({ url: urlToScan })
 
     while (true) {
-        const { status } = await zaproxy.spider.status(scan)
+        const { status } = await zaproxy.spider.status({ scanId: parseInt(scan, 10) })
         if (status === '100') {
             process.stdout.cursorTo(0)
             process.stdout.write(`Scan Status: ${status}%`)
@@ -22,9 +21,12 @@ const urlToScan = 'https://www.saucedemo.com/'
         await new Promise((r) => setTimeout(r, 1000))
     }
 
-    const { scan: ascan } = await zaproxy.ascan.scan(urlToScan, false, false, 'Default Policy')
+    const { scan: ascan } = await zaproxy.ascan.scan({
+        url: urlToScan,
+        scanPolicyName: 'Default Policy'
+    })
     while (true) {
-        const { status } = await zaproxy.ascan.status(ascan)
+        const { status } = await zaproxy.ascan.status({ scanId: parseInt(ascan, 10) })
         if (status === '100') {
             process.stdout.cursorTo(0)
             process.stdout.write(`Analysis Status: ${status}%`)

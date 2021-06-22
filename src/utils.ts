@@ -1,6 +1,6 @@
 import type { OpenAPIV3 } from 'openapi-types'
 
-import { TO_STRING_TAG, PARAMETERS_MAP } from './constants'
+import { TO_STRING_TAG } from './constants'
 import type { Options } from './types'
 import type APIBinding from './index'
 
@@ -54,28 +54,6 @@ export function toString (scope: APIBinding) {
   key: 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXX${scope['_accessKey'].slice(-6)}',
   region: '${scope['_options'].region}'
 }`
-}
-
-/**
- * get sorted list of parameters with full description
- * @param  {Array}    [parameters=[]]  parameter defined in endpoint
- * @return {[Object]}                  full description of parameters
- */
-export function getParameters (parameters: (OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject)[] = []) {
-    const params: OpenAPIV3.ParameterObject[] = parameters.map(
-        (urlParameter) => (urlParameter as OpenAPIV3.ReferenceObject).$ref
-            ? PARAMETERS_MAP.get((urlParameter as OpenAPIV3.ReferenceObject).$ref.split('/').slice(-1)[0]) as OpenAPIV3.ParameterObject
-            : urlParameter as OpenAPIV3.ParameterObject)
-
-    return params.sort((a, b) => {
-        if (a && b && a.required && b.required) {
-            return 0
-        }
-        if (a && b && a.required && !b.required) {
-            return -1
-        }
-        return 1
-    })
 }
 
 /**

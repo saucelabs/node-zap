@@ -5,7 +5,7 @@ const got = require('got')
 const ejs = require('ejs')
 const path = require('path')
 const yaml = require('js-yaml')
-const camelcase = require('camelcase')
+const { camelCase } = require('change-case')
 
 const protocolUrls = {
     zap: 'https://raw.githubusercontent.com/zaproxy/zap-api-docs/master/openapi.yaml',
@@ -44,7 +44,14 @@ async function genTypes (params) {
             .map(([method, command]) => command)
         for (const command of commands) {
             const domain = command.tags[0]
-            const operation = camelcase(command.operationId.replace(domain, '').replace(/(View|Action)/, ''))
+            const operation = camelCase(command.operationId.replace(domain, '').replace(/(View|Action)/, ''))
+            const parameters = [
+                ...(path.parameters || []),
+                ...(command.parameters || [])
+            ].map((param) => {
+                param.nameCamelCased = camelCase(param.name)
+                return param
+            })
 
             if (!domains[domain]) {
                 domains[domain] = []
@@ -53,7 +60,7 @@ async function genTypes (params) {
             domains[domain].push({
                 ...command,
                 operation,
-                parameters: path.parameters || []
+                parameters
             })
         }
     }

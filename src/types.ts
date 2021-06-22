@@ -1,10 +1,14 @@
 import type { OpenAPIV3 } from 'openapi-types'
 
+export interface Parameters extends OpenAPIV3.ParameterObject {
+    nameCamelCased: string
+}
+
 export interface ProtocolCommand {
     method: OpenAPIV3.HttpMethods
     endpoint: string
     description: OpenAPIV3.OperationObject
-    servers: OpenAPIV3.ServerObject[]
+    parameters: Parameters[]
 }
 
 export interface Options {

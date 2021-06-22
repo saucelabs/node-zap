@@ -2,7 +2,7 @@ import { camelCase } from 'change-case'
 import os from 'os'
 import type { OpenAPIV3 } from 'openapi-types'
 
-import type { ProtocolCommand } from './types'
+import type { ProtocolCommand, Parameters } from './types'
 
 const { version } = require('../package.json')
 
@@ -15,17 +15,9 @@ const protocols: OpenAPIV3.Document[] = [
 
 export const API_DOMAINS = new Set()
 const protocolFlattened: Map<string, ProtocolCommand> = new Map()
-const parametersFlattened: Map<string, OpenAPIV3.ParameterObject> = new Map()
-for (const { paths, servers, info } of protocols) {
+for (const { paths, servers, info, components } of protocols) {
     if (!servers) {
         throw new Error(`No "servers" property found in API ${info.title}`)
-    }
-
-    const params = Object.values(paths)
-        .filter((path) => path && path.parameters)
-        .map((path) => path!.parameters as OpenAPIV3.ParameterObject[]).flat()
-    for (const param of params) {
-        parametersFlattened.set(param.name, param)
     }
 
     for (const [endpoint, methods] of Object.entries(paths as OpenAPIV3.PathsObject<OpenAPIV3.OperationObject>)) {
@@ -33,6 +25,28 @@ for (const { paths, servers, info } of protocols) {
             if (method === 'parameters') {
                 continue
             }
+
+            const commandParams: OpenAPIV3.ParameterObject[] = []
+            let params = [
+                ...(methods?.parameters || []),
+                ...(description.parameters || [])
+            ]
+
+            for (const param of params) {
+                /**
+                 * parameter is referenced, e.g. #/components/parameters/FooBar
+                 */
+                const refParam = (param as OpenAPIV3.ReferenceObject).$ref
+                if (refParam && components?.parameters) {
+                    const paramName = refParam.split('/').pop()
+                    if (paramName) {
+                        commandParams.push(components.parameters[paramName] as OpenAPIV3.ParameterObject)
+                    }
+                }
+
+                commandParams.push(param as OpenAPIV3.ParameterObject)
+            }
+
 
             if (!description.operationId) {
                 throw new Error(`No "operationId" found in endpoint ${endpoint}`)
@@ -59,17 +73,23 @@ for (const { paths, servers, info } of protocols) {
                 throw new Error(`command ${commandName} already registered`)
             }
 
+            const sanitizedParams = commandParams
+                .map((param) => {
+                    const newParam: Parameters = {
+                        nameCamelCased: camelCase(param.name),
+                        ...param
+                    }
+                    return newParam
+                })
             protocolFlattened.set(
                 commandName,
-                { method: method as OpenAPIV3.HttpMethods, endpoint, description, servers }
+                { method: method as OpenAPIV3.HttpMethods, endpoint, description, parameters: sanitizedParams }
             )
         }
     }
 }
 
 export const PROTOCOL_MAP = protocolFlattened
-export const PARAMETERS_MAP = parametersFlattened
-
 export const DEFAULT_OPTIONS = {
     user: process.env.SAUCE_USERNAME,
     key: process.env.SAUCE_ACCESS_KEY,

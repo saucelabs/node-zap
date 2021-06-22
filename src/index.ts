@@ -3,9 +3,7 @@ import tunnel from 'tunnel'
 import { camelCase } from 'change-case'
 import type { OpenAPIV3 } from 'openapi-types'
 
-import {
-    getAPIHost, toString, getParameters, isValidType, getRegionSubDomain
-} from './utils'
+import { toString, getRegionSubDomain } from './utils'
 import {
     PROTOCOL_MAP, DEFAULT_OPTIONS, SYMBOL_INSPECT, SYMBOL_TOSTRING,
     SYMBOL_ITERATOR, TO_STRING_TAG, API_DOMAINS
@@ -35,10 +33,9 @@ export default class Zap {
 
         this._accessKey = this._options.key
         this._api = got.extend({
-            headers: {
-                ...opts.headers,
-                authorization: 'eyJraWQiOiJyZXN0byIsInR5cCI6IkpXVCIsImFsZyI6IkhTMjUsaddsasadsda2In0.eyJleHAiOjE1ODg4NTQ3NTUsImlhdCI6MTU4ODg1Mjk1NSwianRpIjoiZjI5ZDU3NjgtZmFmOS00YTZjLWFmMDUtMDU5NDlkZGZlYTY2IiwidXNlcm5hbWUiOiJjYi1vbmJvYXJkaW5nIn0.tx4OpTlLC9fQ76anUheBQTd1Oz_N1cnsoEiaPW1mCiIs'
-            },
+            headers: opts.headers,
+            username: opts.user,
+            password: opts.key,
             agent: {
                 http: tunnel.httpsOverHttps({
                     proxy: {
@@ -121,67 +118,44 @@ export default class Zap {
         /**
          * ensure user is authenticated
          */
-        if (scope.domain !== 'session' && !this.sessionId) {
-            throw new Error(`Couldn't call command "${propName}", reason: not authenticated! Please call \`zap.session.new({ ... })\` first to authenticate with Sauce Labs cloud.`)
-        }
+        // if (scope.domain !== 'session' && !this.sessionId) {
+        //     throw new Error(`Couldn't call command "${propName}", reason: not authenticated! Please call \`zap.session.new({ ... })\` first to authenticate with Sauce Labs cloud.`)
+        // }
 
-        return async (...args: any[]) => {
-            const { description, method, endpoint, servers } = PROTOCOL_MAP.get(commandName) as ProtocolCommand
-            const params = getParameters(description.parameters)
-            const pathParams = params.filter(p => p.in === 'path')
+        return async (args: Record<string, any>) => {
+            const { method, endpoint, parameters } = PROTOCOL_MAP.get(commandName) as ProtocolCommand
 
             /**
-             * validate required url params
-             */
-            let url = endpoint
-            for (const [i, urlParam] of Object.entries(pathParams)) {
-                const param = args[i as any as number]
-                const type = (urlParam.schema as OpenAPIV3.SchemaObject).type!.replace('integer', 'number')
-
-                if (typeof param !== type) {
-                    throw new Error(`Expected parameter for url param '${urlParam.name}' from type '${type}', found '${typeof param}'`)
-                }
-
-                url = url.replace(`{${urlParam.name}}`, param)
-            }
-
-            /**
-             * check for body param (as last parameter as we don't expect request
-             * parameters for non idempotent requests)
-             */
-            let bodyOption = params.find(p => p.in === 'body') || description.requestBody
-                ? args[pathParams.length]
-                : null
-
-            if (bodyOption && typeof bodyOption === 'string') {
-                bodyOption = JSON.parse(bodyOption)
-            }
-
-            /**
-             * validate required options
+             * validate parameters
              */
             const bodyMap = new Map()
-            const options = args.slice(pathParams.length)[0] || {}
-            for (const optionParam of params.filter(p => p.in === 'query')) {
-                const schema = optionParam.schema as OpenAPIV3.SchemaObject
-                const expectedType = schema.type!.replace('integer', 'number')
-                const optionName = camelCase(optionParam.name)
-                const option = options[optionName]
-                const isRequired = Boolean(optionParam.required) || (typeof optionParam.required === 'undefined' && typeof schema.default === 'undefined')
-                if ((isRequired || option) && !isValidType(option, expectedType)) {
-                    throw new Error(`Expected parameter for option '${optionName}' from type '${expectedType}', found '${typeof option}'`)
+            for (const param of parameters) {
+                const userParam = args[param.nameCamelCased]
+                const type = (param.schema as OpenAPIV3.SchemaObject).type!.replace('integer', 'number')
+
+                /**
+                 * skip param if not set
+                 */
+                if (typeof userParam === 'undefined') {
+                    if (param.required) {
+                        throw new Error(`Missing required parameter "${param.name}" for command "${commandName}"`)
+                    }
+
+                    continue
                 }
 
-                if (typeof option !== 'undefined') {
-                    bodyMap.set(optionParam.name, option)
+                if (typeof userParam !== type) {
+                    throw new Error(`Expected parameter for param '${param.name}' from type '${type}', found '${typeof userParam}'`)
                 }
+
+                bodyMap.set(param.name, userParam)
             }
 
             /**
              * get request body by using the body parameter or convert the parameter
              * map into json object
              */
-            const body = bodyOption || [...bodyMap.entries()].reduce((e: any, [k, v]) => {
+            const body = [...bodyMap.entries()].reduce((e: any, [k, v]) => {
                 e[k] = v
                 return e
             }, {})
@@ -189,7 +163,7 @@ export default class Zap {
             /**
              * make request
              */
-            const uri = `https://zap.${getRegionSubDomain(this._options)}.saucelabs.com${url}`
+            const uri = `https://zap.${getRegionSubDomain(this._options)}.saucelabs.com${endpoint}`
             try {
                 const response = await this._api[method as 'get'](uri, {
                     ...(

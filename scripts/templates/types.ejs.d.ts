@@ -20,7 +20,22 @@ export default class Zap {
         /**
          * <%- command.description %>
          */
-        <%- command.operation %>(<%- command.parameters.map((param) => `${param.name}${param.required ? '' : '?'}: ${param.schema.type.replace('integer', 'number')}`).join(', ') %>): Promise<any><% }
+        <%- command.operation %>(<%
+            const requiresParams = command.parameters.filter((p) => p.required).length > 0
+            if (command.parameters.length) {
+                %>param<%- requiresParams ? '' : '?' %>: {<%
+            }
+
+            for (const param of command.parameters) {
+                %>
+            <%- `${param.nameCamelCased}${param.required ? '' : '?'}: ${param.schema.type.replace('integer', 'number')}` %><%
+            }
+
+            if (command.parameters.length) {
+                %>
+        }<%
+            }
+        %>): Promise<any><% }
     %>
     }
     <% } %>

@@ -1,7 +1,6 @@
 import yargs from 'yargs'
 
 import { USAGE, CLI_PARAMS, EPILOG, PROTOCOL_MAP, DEFAULT_OPTIONS, BINDING_VERSION_NOTE } from './constants'
-import { getParameters } from './utils'
 import SauceLabs from '.'
 import { OpenAPIV3 } from 'openapi-types'
 
@@ -14,8 +13,7 @@ export const run = () => {
         .version(BINDING_VERSION_NOTE)
 
     for (const [commandName, options] of PROTOCOL_MAP) {
-        const params = getParameters(options.description.parameters as OpenAPIV3.ReferenceObject[])
-        const command = `${commandName} ${params.map((p) => (
+        const command = `${commandName} ${options.parameters.map((p) => (
             p.required ? `<${p.name}>` : `[${p.name}]`
         )).join(' ')}`
 
@@ -25,7 +23,7 @@ export const run = () => {
             'Unknown description'
         )
         yargs.command(command.trim(), description, (yargs) => {
-            for (const param of params) {
+            for (const param of options.parameters) {
                 const schema = param.schema as OpenAPIV3.SchemaObject
                 const paramDescription = {
                     describe: param.description,
@@ -47,7 +45,7 @@ export const run = () => {
             }
 
             const api = new SauceLabs({ user, key, region }) as any
-            const requiredParams = params.filter((p) => p.required).map((p) => argv[p.name])
+            const requiredParams = options.parameters.filter((p) => p.required).map((p) => argv[p.name])
 
             try {
                 const result = await api[commandName](...requiredParams, argv)
