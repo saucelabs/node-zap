@@ -44,27 +44,6 @@ import SauceZAP from '@saucelabs/zap'
 })().catch(console.error)
 ```
 
-### Use:
-
-Callbacks:
-
-```js
-zaproxy.spider.scanAsUser(contextId, userId, sutBaseUrl, maxChildren, recurse, subtreeonly, (err, resp) => {
-  if (err) // Handle the error.
-  if (resp) // Handle the response.
-});
-```
-
-Promises:
-
-```js
-await zaproxy.spider.scanAsUser(contextId, userId, sutBaseUrl, maxChildren)
-  .then(
-    resp => console.log(JSON.stringify(resp)),
-    err => `Error occurred while attempting to scan as user. Error was: ${err.message}`
-  );
-```
-
 ## API
 
 For a full API list, see [https://www.zaproxy.org/docs/api](zaproxy.org/docs/api). The Node API methods have the same signature as the API documentation.
