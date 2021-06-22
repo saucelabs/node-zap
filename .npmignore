@@ -1,6 +1,5 @@
 assets
 coverage
-scripts
 src
 tests
 !build
@@ -14,3 +13,4 @@ tests
 protocol
 tsconfig.*
 CONTRIBUTING.md
+!scripts
