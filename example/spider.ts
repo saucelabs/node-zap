@@ -39,7 +39,7 @@ const urlToScan = 'https://www.saucedemo.com/'
         await new Promise((r) => setTimeout(r, 1000))
     }
 
-    const { alerts } = await zaproxy.core.alerts()
+    const { alerts } = await zaproxy.alert.alerts()
     for (const alert of alerts) {
         const url = new URL(alert.url)
         console.log(`${url.pathname} (${alert.risk}): ${alert.name}`)

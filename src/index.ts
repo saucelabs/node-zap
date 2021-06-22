@@ -43,6 +43,13 @@ export default class Zap {
                         port: 443
                     }
                 })
+            },
+            /**
+             * ToDo(Christian): eventually remove
+             * Seems that CloudRun functions have random problems connecting.
+             */
+            retry: {
+                statusCodes: [401]
             }
         })
 
@@ -97,8 +104,8 @@ export default class Zap {
             return new Proxy({ domain: propName }, { get: this._get.bind(this) })
         }
 
-        const commandNameAsView = `${scope.domain}View${propName.slice(0, 1).toUpperCase()}${propName.slice(1)}`
-        const commandNameAsAction = `${scope.domain}Action${propName.slice(0, 1).toUpperCase()}${propName.slice(1)}`
+        const commandNameAsView = camelCase(`${scope.domain}-view-${propName}`)
+        const commandNameAsAction = camelCase(`${scope.domain}-action-${propName}`)
         const commandName = PROTOCOL_MAP.has(commandNameAsView)
             ? commandNameAsView
             : PROTOCOL_MAP.has(commandNameAsAction)
@@ -122,7 +129,7 @@ export default class Zap {
         //     throw new Error(`Couldn't call command "${propName}", reason: not authenticated! Please call \`zap.session.new({ ... })\` first to authenticate with Sauce Labs cloud.`)
         // }
 
-        return async (args: Record<string, any>) => {
+        return async (args: Record<string, any> = {}) => {
             const { method, endpoint, parameters } = PROTOCOL_MAP.get(commandName) as ProtocolCommand
 
             /**
@@ -180,13 +187,13 @@ export default class Zap {
                 /**
                  * attach session id to the scope
                  */
-                if (typeof response.body.sessionId) {
+                if (typeof response.body.sessionId === 'string') {
                     this.sessionId = response.body.sessionId
                 }
 
                 return response.body
             } catch (err) {
-                throw new Error(`Failed calling ${propName as string}: ${err.message}, ${err.response && err.response.body}`)
+                throw new Error(`Failed calling ${propName as string}: ${err.message}, ${err.response && JSON.stringify(err.response.body)}`)
             }
         }
     }
