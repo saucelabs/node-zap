@@ -20,7 +20,7 @@ Sauce Labs provides OWASP Zap instances in the cloud for you to use. You only ne
 import SauceZAP from '@saucelabs/zap'
 
 ;(async () => {
-    const zaproxy = new ZapClient({
+    const zaproxy = new SauceZAP({
         user: process.env.SAUCE_USERNAME,
         key: process.env.SAUCE_ACCESS_KEY,
         region: 'apac' // only supported region so far
@@ -34,7 +34,7 @@ import SauceZAP from '@saucelabs/zap'
     /**
      * run ZAP commands
      */
-    const { scan } = await zaproxy.spider.scan({ url: urlToScan })
+    const { scan } = await zaproxy.spider.scan({ url: 'https://saucedemo.com' })
     // ...
 
     /**
