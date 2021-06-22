@@ -74,6 +74,7 @@
     "example",
     "scripts",
     "build",
+    "coverage",
     "node_modules"
   ]
 }

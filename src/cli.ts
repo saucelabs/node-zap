@@ -1,7 +1,7 @@
 import yargs from 'yargs'
 
 import { USAGE, CLI_PARAMS, EPILOG, PROTOCOL_MAP, DEFAULT_OPTIONS, BINDING_VERSION_NOTE } from './constants'
-import SauceLabs from '.'
+import SauceLabs from './index'
 import { OpenAPIV3 } from 'openapi-types'
 import { camelCase } from 'change-case'
 
@@ -46,8 +46,8 @@ export const run = () => {
             }
 
             const api = new SauceLabs({ user, key, region }) as any
-            const requiredParams = options.parameters.filter((p) => p.required).map((p) => argv[p.name])
             const command = PROTOCOL_MAP.get(commandName)
+            // eslint-disable-next-line no-unused-vars
             const [domain, actionType, shortCommandName] = commandName.split(/(Action|View)/)
 
             if (!command) {

@@ -1,5 +1,3 @@
-import type { OpenAPIV3 } from 'openapi-types'
-
 import { TO_STRING_TAG } from './constants'
 import type APIBinding from './index'
 
