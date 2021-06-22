@@ -19,7 +19,7 @@
   "typings": "./build/index.d.ts",
   "scripts": {
     "build": "run-s clean compile postinstall",
-    "clean": "rm -rf ./build ./coverage",
+    "clean": "rimraf tsconfig.tsbuildinfo ./build ./coverage",
     "compile": "tsc -p ./tsconfig.json",
     "eslint": "eslint -c ./.eslintrc.js ./src/**/*.ts ./tests/**/*.ts",
     "postinstall": "./scripts/setup.js",
