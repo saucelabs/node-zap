@@ -42,7 +42,9 @@ export const run = () => {
 
             if (!user || !key) {
                 console.error('"user" and "key" parameters required')
-                return process.exit(1)
+                return process.env.JEST_WORKER_ID
+                    ? null
+                    : process.exit(1)
             }
 
             const api = new SauceLabs({ user, key, region }) as any
