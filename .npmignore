@@ -10,3 +10,7 @@ tests
 .gitignore
 .editorconfig
 .nvmrc
+.github
+protocol
+tsconfig.*
+CONTRIBUTING.md
