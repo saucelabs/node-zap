@@ -1,10 +1,10 @@
 import yargs from 'yargs'
 
-import { run } from '../src/cli'
-import { Options } from '../src/types'
-
 process.env.SAUCE_USERNAME = 'some.user'
 process.env.SAUCE_ACCESS_KEY = 'some.access.key'
+
+import { run } from '../src/cli'
+import { Options } from '../src/types'
 
 jest.mock('../src/index', () => {
     class SauceLabsMock {
