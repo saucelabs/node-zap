@@ -1,9 +1,14 @@
 import SauceZap from '../build'
 
 const urlToScan = 'https://www.saucedemo.com/'
+const testStart = Date.now()
 
 ;(async () => {
     const zaproxy = new SauceZap()
+
+    /**
+     * start Sauce Labs Zap session
+     */
     await zaproxy.session.newSession({ commandTimeout: 1000 * 60 })
     const { scan } = await zaproxy.spider.scan({ url: urlToScan })
 
@@ -12,7 +17,7 @@ const urlToScan = 'https://www.saucedemo.com/'
         if (status === '100') {
             process.stdout.cursorTo(0)
             process.stdout.write(`Scan Status: ${status}%`)
-            process.stdout.write(`\n`)
+            process.stdout.write('\n')
             break
         }
 
@@ -30,7 +35,7 @@ const urlToScan = 'https://www.saucedemo.com/'
         if (status === '100') {
             process.stdout.cursorTo(0)
             process.stdout.write(`Analysis Status: ${status}%`)
-            process.stdout.write(`\n`)
+            process.stdout.write('\n')
             break
         }
 
@@ -48,4 +53,5 @@ const urlToScan = 'https://www.saucedemo.com/'
     }
 
     await zaproxy.session.deleteSession()
+    console.log(`Successfully finished test after ${(Date.now() - testStart) / 1000}s`)
 })().catch((err) => console.error(err))

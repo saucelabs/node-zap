@@ -44,6 +44,8 @@ import SauceZAP from '@saucelabs/zap'
 })().catch(console.error)
 ```
 
+__Note:__ you can find a complete example in [/examples/spider.ts](https://github.com/saucelabs/node-zap/blob/main/example/spider.ts)
+
 ## API
 
 For a full API list, see [https://www.zaproxy.org/docs/api](zaproxy.org/docs/api). The Node API methods have the same signature as the API documentation.
