@@ -24,6 +24,7 @@ export default class Zap {
     private _api: typeof got
     private _proxy: Zap
     private _key: string
+    private _hasSessionClosed = false
 
     constructor (public options?: Partial<Options>) {
         const opts = Object.assign({}, DEFAULT_OPTIONS, options || {})
@@ -49,13 +50,6 @@ export default class Zap {
                         port: 443
                     }
                 })
-            },
-            /**
-             * ToDo(Christian): eventually remove
-             * Seems that CloudRun functions have random problems connecting.
-             */
-            retry: {
-                statusCodes: [401]
             }
         })
 
@@ -100,7 +94,13 @@ export default class Zap {
          * allow to return publicly registered class properties
          */
         if ((this as any)[propName]) {
-            return !propName.startsWith('_') ? (this as any)[propName] : undefined
+            const prop = !propName.startsWith('_') ? (this as any)[propName] : undefined
+
+            if (typeof prop === 'function') {
+                return prop.bind(this)
+            }
+
+            return prop
         }
 
         /**
@@ -136,7 +136,7 @@ export default class Zap {
         }
 
         return async (args: Record<string, any> = {}) => {
-            const { method, endpoint, parameters } = PROTOCOL_MAP.get(commandName) as ProtocolCommand
+            const { method, endpoint, parameters, responses } = PROTOCOL_MAP.get(commandName) as ProtocolCommand
 
             /**
              * validate parameters
@@ -177,6 +177,10 @@ export default class Zap {
              * make request
              */
             const uri = `https://zap.${getRegionSubDomain(this._options)}.saucelabs.com${endpoint}`
+            const responseTypes = Object.keys(((responses || {})['200'] as OpenAPIV3.ResponseObject || {}).content || {})
+            const responseType = responseTypes.length === 0 || (responseTypes.length === 1 && responseTypes[0] === 'application/json')
+                ? 'json'
+                : 'buffer'
             try {
                 const response = await this._api[method as 'get'](uri, {
                     ...(
@@ -184,8 +188,11 @@ export default class Zap {
                             ? { searchParams: body }
                             : { json: body }
                     ),
-                    responseType: 'json',
-                    ...(!this.sessionId ? {} : {
+                    responseType,
+                    /**
+                     * don't send Zap key if session is closed
+                     */
+                    ...(!this.sessionId || this._hasSessionClosed ? {} : {
                         headers: { 'x-zap-api-key': this.sessionId }
                     })
                 }) as any
@@ -195,6 +202,13 @@ export default class Zap {
                  */
                 if (response && response.body && typeof response.body.sessionId === 'string') {
                     this.sessionId = response.body.sessionId
+                }
+
+                /**
+                 * remove session id if it was closes
+                 */
+                if (method === 'delete' && endpoint === '/session/{sessionId}') {
+                    this._hasSessionClosed = true
                 }
 
                 return response.body
@@ -222,7 +236,7 @@ export default class Zap {
                     (await fs.promises.stat(`${opts.path}/${file}`)).isFile()
                 ))
             )
-            tar.c({
+            await tar.c({
                 cwd: opts.path,
                 gzip: true,
                 file: tmpFile.path

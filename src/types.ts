@@ -9,6 +9,7 @@ export interface ProtocolCommand {
     endpoint: string
     description: OpenAPIV3.OperationObject
     parameters: Parameters[]
+    responses: OpenAPIV3.ResponsesObject
 }
 
 export interface Options {

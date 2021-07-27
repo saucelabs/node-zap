@@ -55,7 +55,7 @@ paths:
       tags:
         - session
       responses:
-        default:
+        200:
           description: session response
           content:
             application/json:
@@ -90,8 +90,7 @@ paths:
       tags:
         - session
       responses:
-        default:
-          description: unexpected error
+        200:
           content:
             application/json:
               schema:
@@ -124,7 +123,7 @@ paths:
                 name:
                   type: string
       responses:
-        default:
+        200:
           content:
             application/json:
               schema:

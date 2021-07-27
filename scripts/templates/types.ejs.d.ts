@@ -4,6 +4,10 @@ export default class Zap {
      */
     user: string;
     /**
+     * id of the remote session
+     */
+    sessionId?: string;
+    /**
      * Your Sauce Labs datacenter region. The following regions are available:
      *
      * - us-west-1 (short 'us') - not yet available

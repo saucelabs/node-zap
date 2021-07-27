@@ -83,7 +83,13 @@ for (const { paths, servers, info, components } of protocols) {
                 })
             protocolFlattened.set(
                 commandName,
-                { method: method as OpenAPIV3.HttpMethods, endpoint, description, parameters: sanitizedParams }
+                {
+                    method: method as OpenAPIV3.HttpMethods,
+                    endpoint,
+                    description,
+                    parameters: sanitizedParams,
+                    responses: description.responses as OpenAPIV3.ResponsesObject
+                }
             )
         }
     }
