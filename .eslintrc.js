@@ -21,6 +21,9 @@ module.exports = {
         indent: [2, 4],
 
         'no-constant-condition': 0,
+        // see https://stackoverflow.com/questions/55280555/typescript-eslint-eslint-plugin-error-route-is-defined-but-never-used-no-un
+        'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': 'error',
 
         'import/no-unresolved': 0,
         'import/named': 2,

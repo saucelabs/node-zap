@@ -55,7 +55,7 @@ paths:
       tags:
         - session
       responses:
-        default:
+        200:
           description: session response
           content:
             application/json:
@@ -90,8 +90,7 @@ paths:
       tags:
         - session
       responses:
-        default:
-          description: unexpected error
+        200:
           content:
             application/json:
               schema:
@@ -103,3 +102,87 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /session/{sessionId}/load:
+    post:
+      description: >-
+        Load persisted session into remote session
+      operationId: loadSession
+      tags:
+        - session
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                session:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                name:
+                  type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        500:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: path
+        in: parameter
+        required: true
+        description: |
+          path to either:
+           - a directory
+           - a *.tar.gz
+          containing session files
+        schema:
+          type: string
+      - name: name
+        in: parameter
+        required: true
+        description: name of the session
+        schema:
+          type: string
+  /session/{sessionId}/assets:
+    get:
+      description: >-
+        Get asset from a complete Zap session
+      operationId: getAsset
+      tags:
+        - session
+      responses:
+        200:
+          description: content of asset file
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: log files like zap.log
+            application/json:
+              schema:
+                description: command logs, e.g. session.json
+            application/x-tar:
+              schema:
+                description: Zap session, e.g. session.tar.gz
+        500:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: name
+        in: query
+        required: true
+        description: name of the asset, e.g. zap.log
+        schema:
+          type: string

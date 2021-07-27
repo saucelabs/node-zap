@@ -49,7 +49,7 @@ export const run = () => {
 
             const api = new SauceLabs({ user, key, region }) as any
             const command = PROTOCOL_MAP.get(commandName)
-            // eslint-disable-next-line no-unused-vars
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const [domain, actionType, shortCommandName] = commandName.split(/(Action|View)/)
 
             if (!command) {

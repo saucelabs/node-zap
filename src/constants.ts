@@ -9,8 +9,8 @@ const { version } = require('../package.json')
 export const BINDING_VERSION_NOTE = `node-zap v${version}`
 
 const protocols: OpenAPIV3.Document[] = [
-    require('./api/zap.json'),
-    require('./api/sauce.json')
+    require('../build/api/zap.json'),
+    require('../build/api/sauce.json')
 ]
 
 export const API_DOMAINS = new Set()
@@ -83,7 +83,13 @@ for (const { paths, servers, info, components } of protocols) {
                 })
             protocolFlattened.set(
                 commandName,
-                { method: method as OpenAPIV3.HttpMethods, endpoint, description, parameters: sanitizedParams }
+                {
+                    method: method as OpenAPIV3.HttpMethods,
+                    endpoint,
+                    description,
+                    parameters: sanitizedParams,
+                    responses: description.responses as OpenAPIV3.ResponsesObject
+                }
             )
         }
     }
@@ -126,3 +132,12 @@ export const CLI_PARAMS = [{
     default: DEFAULT_OPTIONS.region,
     description: 'your Sauce Labs datacenter region, the following regions are available: `us-west-1` (short `us`), `eu-central-1` (short `eu`)'
 }]
+
+export const SESSION_SUFFIXES = [
+    '.session',
+    '.session.data',
+    '.session.lck',
+    '.session.log',
+    '.session.properties',
+    '.session.script'
+]

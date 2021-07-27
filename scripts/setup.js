@@ -9,7 +9,7 @@ const { camelCase } = require('change-case')
 
 const protocolUrls = {
     zap: 'https://raw.githubusercontent.com/zaproxy/zap-api-docs/master/openapi.yaml',
-    sauce: 'https://raw.githubusercontent.com/saucelabs/node-zap/main/protocol/sauce.yaml?token=AAFSRSISCQTRLHHF4U64UT3A3JEW6'
+    sauce: 'https://raw.githubusercontent.com/saucelabs/node-zap/cb-load-session/protocol/sauce.yaml?token=AAFSRSITT7HA6AJ5ZX6GLMDBBFWRY'
 }
 
 const regions = ['apac']
@@ -41,8 +41,8 @@ async function genTypes (params) {
     const allPaths = Object.values(apis).reduce((res, api) => ({ ...res, ...api.paths }), {})
     for (const path of Object.values(allPaths)) {
         const commands = Object.entries(path)
-            .filter(([method, command]) => method !== 'parameters')
-            .map(([method, command]) => command)
+            .filter(([method]) => method !== 'parameters')
+            .map(([, command]) => command)
         for (const command of commands) {
             const domain = command.tags[0]
             const operation = camelCase(command.operationId.replace(domain, '').replace(/(View|Action)/, ''))

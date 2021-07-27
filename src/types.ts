@@ -9,6 +9,7 @@ export interface ProtocolCommand {
     endpoint: string
     description: OpenAPIV3.OperationObject
     parameters: Parameters[]
+    responses: OpenAPIV3.ResponsesObject
 }
 
 export interface Options {
@@ -16,4 +17,18 @@ export interface Options {
     key: string
     region: 'apac'
     headers?: Record<string, string>
+}
+
+export interface LoadSessionOpts {
+    /**
+     * path to either:
+     *  - a directory
+     *  - a *.tar.gz
+     * containing session files
+     */
+    path: string
+    /**
+     * name of the session
+     */
+    name: string
 }
