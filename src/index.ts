@@ -1,12 +1,16 @@
+import fs from 'fs'
 import got from 'got'
+import tar from 'tar'
+import tmp from 'tmp-promise'
 import tunnel from 'tunnel'
+import FormData from 'form-data'
 import { camelCase } from 'change-case'
 import type { OpenAPIV3 } from 'openapi-types'
 
 import { toString, getRegionSubDomain } from './utils'
 import {
     PROTOCOL_MAP, DEFAULT_OPTIONS, SYMBOL_INSPECT, SYMBOL_TOSTRING,
-    SYMBOL_ITERATOR, TO_STRING_TAG, API_DOMAINS
+    SYMBOL_ITERATOR, TO_STRING_TAG, API_DOMAINS, SESSION_SUFFIXES
 } from './constants'
 import { Options, ProtocolCommand } from './types'
 
@@ -19,6 +23,7 @@ export default class Zap {
     private _accessKey: string
     private _api: typeof got
     private _proxy: Zap
+    private _key: string
 
     constructor (public options?: Partial<Options>) {
         const opts = Object.assign({}, DEFAULT_OPTIONS, options || {})
@@ -30,6 +35,7 @@ export default class Zap {
         this._options = opts as Options
         this.region = opts.region
         this.user = opts.user
+        this._key = opts.key
 
         this._accessKey = this._options.key
         this._api = got.extend({
@@ -125,9 +131,9 @@ export default class Zap {
         /**
          * ensure user is authenticated
          */
-        // if (scope.domain !== 'session' && !this.sessionId) {
-        //     throw new Error(`Couldn't call command "${propName}", reason: not authenticated! Please call \`zap.session.new({ ... })\` first to authenticate with Sauce Labs cloud.`)
-        // }
+        if (scope.domain !== 'session' && !this.sessionId) {
+            throw new Error(`Couldn't call command "${propName}", reason: not authenticated! Please call \`zap.session.new({ ... })\` first to authenticate with Sauce Labs cloud.`)
+        }
 
         return async (args: Record<string, any> = {}) => {
             const { method, endpoint, parameters } = PROTOCOL_MAP.get(commandName) as ProtocolCommand
@@ -195,6 +201,53 @@ export default class Zap {
             } catch (err) {
                 throw new Error(`Failed calling ${propName as string}: ${err.message}, ${err.response && JSON.stringify(err.response.body)}`)
             }
+        }
+    }
+
+    /**
+     * Load persisted session into remote session
+     * @param filepath path to `*.tar.gz` file with session files
+     */
+    async loadSession (filepath: string, sessionName: string) {
+        /**
+         * create tar file if directory is given
+         */
+        const stat = await fs.promises.stat(filepath)
+        if (stat.isDirectory()) {
+            const tmpFile = await tmp.file()
+            const dirFiles = await fs.promises.readdir(filepath)
+            const files = await Promise.all(
+                dirFiles.filter(async (file) => (
+                    SESSION_SUFFIXES.some((s) => file.endsWith(s)) &&
+                    (await fs.promises.stat(`${filepath}/${file}`)).isFile()
+                ))
+            )
+            tar.c({
+                cwd: filepath,
+                gzip: true,
+                file: tmpFile.path
+            }, files)
+
+            filepath = tmpFile.path
+        }
+
+        const form = new FormData()
+        form.append('session', fs.createReadStream(filepath))
+        form.append('name', sessionName)
+
+        /**
+         * make request
+         */
+        const uri = `https://zap.${getRegionSubDomain(this._options)}.saucelabs.com/session/${this.sessionId}/load`
+        try {
+            const response = await this._api.post(uri, {
+                body: form,
+                responseType: 'json'
+            }) as any
+
+            return response.body
+        } catch (err) {
+            throw new Error(`Failed loading session from "${filepath}": ${err.message}`)
         }
     }
 }

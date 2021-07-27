@@ -126,3 +126,12 @@ export const CLI_PARAMS = [{
     default: DEFAULT_OPTIONS.region,
     description: 'your Sauce Labs datacenter region, the following regions are available: `us-west-1` (short `us`), `eu-central-1` (short `eu`)'
 }]
+
+export const SESSION_SUFFIXES = [
+    '.session',
+    '.session.data',
+    '.session.lck',
+    '.session.log',
+    '.session.properties',
+    '.session.script'
+]

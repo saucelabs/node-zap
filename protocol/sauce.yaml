@@ -103,3 +103,43 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /session/{sessionId}/load:
+    post:
+      description: >-
+        Load persisted session into remote session
+      operationId: loadSession
+      tags:
+        - session
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        500:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /session/{sessionId}/assets/{asset}:
+    post:
+      description: >-
+        Get asset from a complete Zap session
+      operationId: getAsset
+      tags:
+        - session
+      responses:
+        default:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        500:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"

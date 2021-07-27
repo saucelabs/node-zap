@@ -41,8 +41,8 @@ async function genTypes (params) {
     const allPaths = Object.values(apis).reduce((res, api) => ({ ...res, ...api.paths }), {})
     for (const path of Object.values(allPaths)) {
         const commands = Object.entries(path)
-            .filter(([method, command]) => method !== 'parameters')
-            .map(([method, command]) => command)
+            .filter(([method]) => method !== 'parameters')
+            .map(([, command]) => command)
         for (const command of commands) {
             const domain = command.tags[0]
             const operation = camelCase(command.operationId.replace(domain, '').replace(/(View|Action)/, ''))
