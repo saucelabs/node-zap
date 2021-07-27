@@ -161,6 +161,19 @@ paths:
       tags:
         - session
       responses:
+        200:
+          description: content of asset file
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: log files like zap.log
+            application/json:
+              schema:
+                description: command logs, e.g. session.json
+            application/x-tar:
+              schema:
+                description: Zap session, e.g. session.tar.gz
         500:
           description: unexpected error
           content:
