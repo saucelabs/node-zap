@@ -23,7 +23,6 @@ export default class Zap {
     private _accessKey: string
     private _api: typeof got
     private _proxy: Zap
-    private _key: string
     private _hasSessionClosed = false
 
     constructor (public options?: Partial<Options>) {
@@ -36,7 +35,6 @@ export default class Zap {
         this._options = opts as Options
         this.region = opts.region
         this.user = opts.user
-        this._key = opts.key
 
         this._accessKey = this._options.key
         this._api = got.extend({

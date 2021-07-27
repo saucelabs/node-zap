@@ -13,7 +13,6 @@ const testStart = Date.now()
     /**
      * start Sauce Labs Zap session
      */
-    console.log('GOOOO')
     await zaproxy.session.newSession({ commandTimeout: 1000 * 60 })
 
     /**
