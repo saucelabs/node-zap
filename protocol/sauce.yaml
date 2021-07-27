@@ -137,10 +137,20 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     parameters:
-      - name: sessionId
-        in: url
+      - name: path
+        in: parameter
         required: true
-        description: "id of the remote session"
+        description: |
+          path to either:
+           - a directory
+           - a *.tar.gz
+          containing session files
+        schema:
+          type: string
+      - name: name
+        in: parameter
+        required: true
+        description: name of the session
         schema:
           type: string
   /session/{sessionId}/assets/{asset}:

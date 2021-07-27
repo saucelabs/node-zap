@@ -9,7 +9,7 @@ const { camelCase } = require('change-case')
 
 const protocolUrls = {
     zap: 'https://raw.githubusercontent.com/zaproxy/zap-api-docs/master/openapi.yaml',
-    sauce: 'https://raw.githubusercontent.com/saucelabs/node-zap/main/protocol/sauce.yaml?token=AAFSRSISCQTRLHHF4U64UT3A3JEW6'
+    sauce: 'https://raw.githubusercontent.com/saucelabs/node-zap/cb-load-session/protocol/sauce.yaml?token=AAFSRSNK6WGEMULVKKZ6T6TBBEHAE'
 }
 
 const regions = ['apac']
