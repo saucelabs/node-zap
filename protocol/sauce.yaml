@@ -173,3 +173,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+    parameters:
+      - name: asset
+        in: parameter
+        required: true
+        description: name of the asset, e.g. zap.log
+        schema:
+          type: string
