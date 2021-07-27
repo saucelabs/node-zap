@@ -110,6 +110,19 @@ paths:
       operationId: loadSession
       tags:
         - session
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                session:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                name:
+                  type: string
       responses:
         default:
           content:
@@ -123,6 +136,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+    parameters:
+      - name: sessionId
+        in: url
+        required: true
+        description: "id of the remote session"
+        schema:
+          type: string
   /session/{sessionId}/assets/{asset}:
     post:
       description: >-

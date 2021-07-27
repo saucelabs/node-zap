@@ -12,7 +12,7 @@ import {
     PROTOCOL_MAP, DEFAULT_OPTIONS, SYMBOL_INSPECT, SYMBOL_TOSTRING,
     SYMBOL_ITERATOR, TO_STRING_TAG, API_DOMAINS, SESSION_SUFFIXES
 } from './constants'
-import { Options, ProtocolCommand } from './types'
+import type { Options, ProtocolCommand, LoadSessionOpts } from './types'
 
 export default class Zap {
     public user: string
@@ -208,32 +208,32 @@ export default class Zap {
      * Load persisted session into remote session
      * @param filepath path to `*.tar.gz` file with session files
      */
-    async loadSession (filepath: string, sessionName: string) {
+    async loadSession (opts: LoadSessionOpts) {
         /**
          * create tar file if directory is given
          */
-        const stat = await fs.promises.stat(filepath)
+        const stat = await fs.promises.stat(opts.path)
         if (stat.isDirectory()) {
             const tmpFile = await tmp.file()
-            const dirFiles = await fs.promises.readdir(filepath)
+            const dirFiles = await fs.promises.readdir(opts.path)
             const files = await Promise.all(
                 dirFiles.filter(async (file) => (
                     SESSION_SUFFIXES.some((s) => file.endsWith(s)) &&
-                    (await fs.promises.stat(`${filepath}/${file}`)).isFile()
+                    (await fs.promises.stat(`${opts.path}/${file}`)).isFile()
                 ))
             )
             tar.c({
-                cwd: filepath,
+                cwd: opts.path,
                 gzip: true,
                 file: tmpFile.path
             }, files)
 
-            filepath = tmpFile.path
+            opts.path = tmpFile.path
         }
 
         const form = new FormData()
-        form.append('session', fs.createReadStream(filepath))
-        form.append('name', sessionName)
+        form.append('session', fs.createReadStream(opts.path))
+        form.append('name', opts.name)
 
         /**
          * make request
@@ -247,7 +247,7 @@ export default class Zap {
 
             return response.body
         } catch (err) {
-            throw new Error(`Failed loading session from "${filepath}": ${err.message}`)
+            throw new Error(`Failed loading session from "${opts.path}": ${err.message}`)
         }
     }
 }
