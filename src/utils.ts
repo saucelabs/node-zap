@@ -27,3 +27,19 @@ export function toString (scope: APIBinding) {
   region: '${scope['_options'].region}'
 }`
 }
+
+/**
+ * little helper method to filter asynchronously
+ * @param arr array of elements
+ * @param callback filter method that accepts promises
+ * @returns filtered array
+ */
+export async function asyncFilter(arr: any[], callback: (item: any, arr: any[]) => Promise<boolean> | boolean) {
+    const fail = Symbol()
+    return (await Promise.all(
+        arr.map(async item => (await callback(item, arr))
+            ? item
+            : fail
+        )
+    )).filter((i) => i !== fail)
+}

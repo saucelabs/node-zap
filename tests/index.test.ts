@@ -1,5 +1,8 @@
 import util from 'util'
 import got from 'got'
+import tar from 'tar'
+// @ts-expect-error
+import { instances } from 'form-data'
 
 import SauceLabs from '../src'
 
@@ -78,6 +81,8 @@ test('should allow to call an API method with param in url', async () => {
 
 test('should allow to call an API method with param as option', async () => {
     const api = new SauceLabs({ user: 'foo', key: 'bar' })
+    api.sessionId = 'foobar'
+
     // @ts-expect-error
     await api.alert.alerts({
         baseurl: 'http://sauce'
@@ -92,12 +97,118 @@ test('should allow to call an API method with param as option', async () => {
 
 test('should fail if param has wrong type', async () => {
     const api = new SauceLabs({ user: 'foo', key: 'bar' })
+    api.sessionId = 'foobar'
+
     // @ts-expect-error
     const error = await api.alert.alerts({
         baseurl: 123
     }).catch((err) => err)
     expect(error.message).toBe('Expected parameter for param \'baseurl\' from type \'string\', found \'number\'')
 })
+
+test('should throw if you try to set a different property than sessionId', () => {
+    const api = new SauceLabs({ user: 'foo', key: 'bar' })
+    expect(() => {
+        // @ts-expect-error
+        api.foobar = 'barfoo'
+    }).toThrow(/Can't set property "foobar"/)
+})
+
+test('can upload *.tar.gz files', async () => {
+    const api = new SauceLabs({ user: 'foo', key: 'bar' })
+    api.sessionId = 'foobar'
+
+    // @ts-expect-error
+    await api.session.loadSession({
+        path: __filename,
+        name: 'barfoo'
+    })
+
+    const formData = instances.pop()
+    expect(formData.append).toBeCalledWith('session', expect.any(Object))
+    expect(formData.append).toBeCalledWith('name', 'barfoo')
+
+    const uri = (got as any as jest.Mock).mock.calls[0][0]
+    expect(uri).toBe('https://zap.apac-southeast-1.saucelabs.com/session/foobar/load')
+})
+
+test('can upload session directories', async () => {
+    const api = new SauceLabs({ user: 'foo', key: 'bar' })
+    api.sessionId = 'foobar'
+
+    // @ts-expect-error
+    await api.session.loadSession({
+        path: __dirname + '/__fixtures__',
+        name: 'barfoo'
+    })
+
+    expect(tar.c).toBeCalledWith({
+        cwd: __dirname + '/__fixtures__',
+        gzip: true,
+        file: expect.any(String)
+    }, [
+        '6989f9e6-7c5c-4208-8585-d57cfadc3158.session',
+        '6989f9e6-7c5c-4208-8585-d57cfadc3158.session.data',
+        '6989f9e6-7c5c-4208-8585-d57cfadc3158.session.lck',
+        '6989f9e6-7c5c-4208-8585-d57cfadc3158.session.log',
+        '6989f9e6-7c5c-4208-8585-d57cfadc3158.session.properties',
+        '6989f9e6-7c5c-4208-8585-d57cfadc3158.session.script'
+    ])
+
+    const formData = instances.pop()
+    expect(formData.append).toBeCalledWith('session', expect.any(Object))
+    expect(formData.append).toBeCalledWith('name', 'barfoo')
+
+    const uri = (got as any as jest.Mock).mock.calls[0][0]
+    expect(uri).toBe('https://zap.apac-southeast-1.saucelabs.com/session/foobar/load')
+})
+
+// /**
+//      * Load persisted session into remote session
+//      * @param filepath path to `*.tar.gz` file with session files
+//      */
+//  async loadSession (opts: LoadSessionOpts) {
+//     /**
+//      * create tar file if directory is given
+//      */
+//     const stat = await fs.promises.stat(opts.path)
+//     if (stat.isDirectory()) {
+//         const tmpFile = await tmp.file()
+//         const dirFiles = await fs.promises.readdir(opts.path)
+//         const files = await Promise.all(
+//             dirFiles.filter(async (file) => (
+//                 SESSION_SUFFIXES.some((s) => file.endsWith(s)) &&
+//                 (await fs.promises.stat(`${opts.path}/${file}`)).isFile()
+//             ))
+//         )
+//         await tar.c({
+//             cwd: opts.path,
+//             gzip: true,
+//             file: tmpFile.path
+//         }, files)
+
+//         opts.path = tmpFile.path
+//     }
+
+//     const form = new FormData()
+//     form.append('session', fs.createReadStream(opts.path))
+//     form.append('name', opts.name)
+
+//     /**
+//      * make request
+//      */
+//     const uri = `https://zap.${getRegionSubDomain(this._options)}.saucelabs.com/session/${this.sessionId}/load`
+//     try {
+//         const response = await this._api.post(uri, {
+//             body: form,
+//             responseType: 'json'
+//         }) as any
+
+//         return response.body
+//     } catch (err) {
+//         throw new Error(`Failed loading session from "${opts.path}": ${err.message}`)
+//     }
+// }
 
 afterEach(() => {
     (got as any as jest.Mock).mockClear()

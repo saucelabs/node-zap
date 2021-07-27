@@ -72,3 +72,4 @@ src/api
 example/*.tar.gz
 example/*.json
 example/session
+!tests/__fixtures__/*.log

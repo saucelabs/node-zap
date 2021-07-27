@@ -7,7 +7,7 @@ import FormData from 'form-data'
 import { camelCase } from 'change-case'
 import type { OpenAPIV3 } from 'openapi-types'
 
-import { toString, getRegionSubDomain } from './utils'
+import { toString, getRegionSubDomain, asyncFilter } from './utils'
 import {
     PROTOCOL_MAP, DEFAULT_OPTIONS, SYMBOL_INSPECT, SYMBOL_TOSTRING,
     SYMBOL_ITERATOR, TO_STRING_TAG, API_DOMAINS, SESSION_SUFFIXES
@@ -56,10 +56,22 @@ export default class Zap {
             key: `XXXXXXXX-XXXX-XXXX-XXXX-XXXXXX${(this._accessKey || '').slice(-6)}`,
             region: this._options.region,
             headers: this._options.headers
-        } as any, { get: this._get.bind(this) })
+        } as any, {
+            get: this._get.bind(this),
+            set: this._set.bind(this)
+        })
 
         // @ts-ignore
         return this._proxy
+    }
+
+    private _set (scope: { domain: string }, propName: string, val: string): any {
+        if (propName === 'sessionId') {
+            this.sessionId = val
+            return val
+        }
+
+        throw new Error(`Can't set property "${propName}"`)
     }
 
     private _get (scope: { domain: string }, propName: string | symbol): any {
@@ -86,6 +98,13 @@ export default class Zap {
          */
         if (propName === SYMBOL_ITERATOR || typeof propName !== 'string') {
             return
+        }
+
+        /**
+         * ensure user is authenticated
+         */
+        if (Boolean(scope.domain) && scope.domain !== 'session' && propName !== 'newSession' && !this.sessionId) {
+            throw new Error(`Couldn't call command "${propName}", reason: not authenticated! Please call \`zap.session.new({ ... })\` first to authenticate with Sauce Labs cloud.`)
         }
 
         /**
@@ -124,13 +143,6 @@ export default class Zap {
                 return
             }
             throw new Error(`Couldn't find API endpoint for command "${propName}"`)
-        }
-
-        /**
-         * ensure user is authenticated
-         */
-        if (scope.domain !== 'session' && !this.sessionId) {
-            throw new Error(`Couldn't call command "${propName}", reason: not authenticated! Please call \`zap.session.new({ ... })\` first to authenticate with Sauce Labs cloud.`)
         }
 
         return async (args: Record<string, any> = {}) => {
@@ -228,12 +240,11 @@ export default class Zap {
         if (stat.isDirectory()) {
             const tmpFile = await tmp.file()
             const dirFiles = await fs.promises.readdir(opts.path)
-            const files = await Promise.all(
-                dirFiles.filter(async (file) => (
-                    SESSION_SUFFIXES.some((s) => file.endsWith(s)) &&
-                    (await fs.promises.stat(`${opts.path}/${file}`)).isFile()
-                ))
-            )
+            const files = await asyncFilter(dirFiles, async (file) => (
+                SESSION_SUFFIXES.some((s) => file.endsWith(s)) &&
+                (await fs.promises.stat(`${opts.path}/${file}`)).isFile()
+            ))
+
             await tar.c({
                 cwd: opts.path,
                 gzip: true,
