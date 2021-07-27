@@ -93,6 +93,20 @@ test('should allow to call an API method with param as option', async () => {
 
     expect(uri).toBe('https://zap.apac-southeast-1.saucelabs.com/JSON/alert/view/alerts/')
     expect(req.searchParams).toEqual({ baseurl: 'http://sauce' })
+    expect(req.responseType).toEqual('json')
+})
+
+test('should set responseType to buffer if protocol hints multiple response types', async () => {
+    const api = new SauceLabs({ user: 'foo', key: 'bar' })
+    api.sessionId = 'foobar'
+
+    // @ts-expect-error
+    await api.session.getAsset({
+        name: 'http://sauce'
+    })
+
+    const req = (got as any as jest.Mock).mock.calls[0][1]
+    expect(req.responseType).toEqual('buffer')
 })
 
 test('should fail if param has wrong type', async () => {
