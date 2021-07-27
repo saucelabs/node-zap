@@ -177,53 +177,6 @@ test('can upload session directories', async () => {
     expect(uri).toBe('https://zap.apac-southeast-1.saucelabs.com/session/foobar/load')
 })
 
-// /**
-//      * Load persisted session into remote session
-//      * @param filepath path to `*.tar.gz` file with session files
-//      */
-//  async loadSession (opts: LoadSessionOpts) {
-//     /**
-//      * create tar file if directory is given
-//      */
-//     const stat = await fs.promises.stat(opts.path)
-//     if (stat.isDirectory()) {
-//         const tmpFile = await tmp.file()
-//         const dirFiles = await fs.promises.readdir(opts.path)
-//         const files = await Promise.all(
-//             dirFiles.filter(async (file) => (
-//                 SESSION_SUFFIXES.some((s) => file.endsWith(s)) &&
-//                 (await fs.promises.stat(`${opts.path}/${file}`)).isFile()
-//             ))
-//         )
-//         await tar.c({
-//             cwd: opts.path,
-//             gzip: true,
-//             file: tmpFile.path
-//         }, files)
-
-//         opts.path = tmpFile.path
-//     }
-
-//     const form = new FormData()
-//     form.append('session', fs.createReadStream(opts.path))
-//     form.append('name', opts.name)
-
-//     /**
-//      * make request
-//      */
-//     const uri = `https://zap.${getRegionSubDomain(this._options)}.saucelabs.com/session/${this.sessionId}/load`
-//     try {
-//         const response = await this._api.post(uri, {
-//             body: form,
-//             responseType: 'json'
-//         }) as any
-
-//         return response.body
-//     } catch (err) {
-//         throw new Error(`Failed loading session from "${opts.path}": ${err.message}`)
-//     }
-// }
-
 afterEach(() => {
     (got as any as jest.Mock).mockClear()
 })
