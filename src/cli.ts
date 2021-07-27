@@ -49,8 +49,8 @@ export const run = () => {
 
             const api = new SauceLabs({ user, key, region }) as any
             const command = PROTOCOL_MAP.get(commandName)
-            // eslint-disable-next-line no-unused-vars
-            const [domain, shortCommandName] = commandName.split(/(Action|View)/)
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const [domain, actionType, shortCommandName] = commandName.split(/(Action|View)/)
 
             if (!command) {
                 throw new Error(`Command "${commandName}" not found`)
