@@ -19,12 +19,6 @@ const urlToScan = 'https://www.saucedemo.com/'
     await zaproxy.session.deleteSession()
 
     /**
-     * wait 20s until assets are uploaded
-     * Note(Christian): this will be fixed
-     */
-    await new Promise((resolve) => setTimeout(resolve, 20 * 1000))
-
-    /**
      * download zap.log
      */
     const zapLog = await zaproxy.session.getAsset({ name: 'zap.log' }) as Buffer

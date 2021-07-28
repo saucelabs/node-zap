@@ -186,7 +186,7 @@ export default class Zap {
             /**
              * make request
              */
-            const uri = `https://zap.${getRegionSubDomain(this._options)}.saucelabs.com${endpoint}`
+            const uri = `https://zap.${getRegionSubDomain(this._options)}.saucelabs.com${endpoint.replace('{sessionId}', this.sessionId!)}`
             const responseTypes = Object.keys(((responses || {})['200'] as OpenAPIV3.ResponseObject || {}).content || {})
             const responseType = responseTypes.length === 0 || (responseTypes.length === 1 && responseTypes[0] === 'application/json')
                 ? 'json'
