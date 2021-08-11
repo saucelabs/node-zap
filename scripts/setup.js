@@ -15,13 +15,21 @@ const protocolUrls = {
 const regions = ['apac']
 
 async function download ([protocolName, protocolUrl]) {
-    const apiYaml = await got(protocolUrl)
-    const api = await yaml.load(apiYaml.body)
     const apiDir = path.join(__dirname, '..', 'build', 'api')
 
     const hasAccess = await fs.promises.access(apiDir).then(() => true, () => false)
     if (!hasAccess) {
         await fs.promises.mkdir(apiDir, { recursive: true })
+    }
+
+    let api
+    if (protocolName === 'sauce' && process.env.NODE_ENV === 'dev') {
+        const localProtocol = path.join(__dirname, '..', 'protocol', 'sauce.yaml')
+        const apiYaml = await fs.promises.readFile(localProtocol, 'utf-8')
+        api = await yaml.load(apiYaml.toString())
+    } else {
+        const apiYaml = await got(protocolUrl)
+        api = await yaml.load(apiYaml.body)
     }
 
     await fs.promises.writeFile(
