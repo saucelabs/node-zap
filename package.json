@@ -12,6 +12,9 @@
     "type": "git",
     "url": "git://github.com/saucelabs/node-zap.git"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "./build/index",
   "bin": {
     "zap": "./bin/zap"
