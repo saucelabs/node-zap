@@ -10,9 +10,12 @@ import type { OpenAPIV3 } from 'openapi-types'
 import { toString, getRegionSubDomain, asyncFilter } from './utils'
 import {
     PROTOCOL_MAP, DEFAULT_OPTIONS, SYMBOL_INSPECT, SYMBOL_TOSTRING,
-    SYMBOL_ITERATOR, TO_STRING_TAG, API_DOMAINS, SESSION_SUFFIXES
+    SYMBOL_ITERATOR, TO_STRING_TAG, API_DOMAINS, SESSION_SUFFIXES,
+    REPORT_COMMANDS
 } from './constants'
 import type { Options, ProtocolCommand, LoadSessionOpts } from './types'
+
+
 
 export default class Zap {
     public user: string
@@ -129,11 +132,15 @@ export default class Zap {
 
         const commandNameAsView = camelCase(`${scope.domain}-view-${propName}`)
         const commandNameAsAction = camelCase(`${scope.domain}-action-${propName}`)
+        const commandNameAsOther = camelCase(`${scope.domain}-other-${propName}`)
         const commandName = PROTOCOL_MAP.has(commandNameAsView)
             ? commandNameAsView
-            : PROTOCOL_MAP.has(commandNameAsAction)
-                ? commandNameAsAction
-                : scope.domain === 'session' ? propName : null
+            : PROTOCOL_MAP.has(commandNameAsOther)
+                ? commandNameAsOther
+                : PROTOCOL_MAP.has(commandNameAsAction)
+                    ? commandNameAsAction
+                    : scope.domain === 'session' ? propName : null
+
         if (!commandName) {
             /**
              * just return if propName is a symbol (Node 8 and lower)
@@ -188,9 +195,25 @@ export default class Zap {
              */
             const uri = `https://zap.${getRegionSubDomain(this._options)}.saucelabs.com${endpoint.replace('{sessionId}', this.sessionId!)}`
             const responseTypes = Object.keys(((responses || {})['200'] as OpenAPIV3.ResponseObject || {}).content || {})
-            const responseType = responseTypes.length === 0 || (responseTypes.length === 1 && responseTypes[0] === 'application/json')
+
+            /**
+             * assume response is JSON (most of Zap commands are), if
+             */
+            const responseType = (
+                /**
+                 * OpenAPI spec doesn't define something different
+                 */
+                (responseTypes.length === 0 || (responseTypes.length === 1 && responseTypes[0] === 'application/json')) &&
+                /**
+                 * we don't deal with reports given that
+                 * Note: this is obsolete given aboves expression but Zaps OpenAPI spec is
+                 * very vague and not detailed enough
+                 */
+                !REPORT_COMMANDS.includes(propName)
+            )
                 ? 'json'
                 : 'buffer'
+
             try {
                 const response = await this._api[method as 'get'](uri, {
                     ...(

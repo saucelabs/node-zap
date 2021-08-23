@@ -53,7 +53,7 @@ async function genTypes (params) {
             .map(([, command]) => command)
         for (const command of commands) {
             const domain = command.tags[0]
-            const operation = camelCase(command.operationId.replace(domain, '').replace(/(View|Action)/, ''))
+            const operation = camelCase(command.operationId.replace(domain, '').replace(/(View|Action|Other)/, ''))
             const parameters = [
                 ...(path.parameters || []),
                 ...(command.parameters || [])
