@@ -129,11 +129,15 @@ export default class Zap {
 
         const commandNameAsView = camelCase(`${scope.domain}-view-${propName}`)
         const commandNameAsAction = camelCase(`${scope.domain}-action-${propName}`)
+        const commandNameAsOther = camelCase(`${scope.domain}-other-${propName}`)
         const commandName = PROTOCOL_MAP.has(commandNameAsView)
             ? commandNameAsView
-            : PROTOCOL_MAP.has(commandNameAsAction)
-                ? commandNameAsAction
-                : scope.domain === 'session' ? propName : null
+            : PROTOCOL_MAP.has(commandNameAsOther)
+                ? commandNameAsOther
+                : PROTOCOL_MAP.has(commandNameAsAction)
+                    ? commandNameAsAction
+                    : scope.domain === 'session' ? propName : null
+
         if (!commandName) {
             /**
              * just return if propName is a symbol (Node 8 and lower)
