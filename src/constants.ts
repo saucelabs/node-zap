@@ -141,3 +141,9 @@ export const SESSION_SUFFIXES = [
     '.session.properties',
     '.session.script'
 ]
+
+export const REPORT_COMMANDS = [
+    'xmlreport',
+    'htmlreport',
+    'mdreport'
+]
