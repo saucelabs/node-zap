@@ -62,6 +62,7 @@ tests/typings/dist
 
 build
 /*.js
+/*.ts
 !jest.config.js
 !.eslintrc.js
 !babel.config.js

@@ -1,4 +1,29 @@
+export type APAC_REGION = 'apac' | 'apac-southeast-1'
+
+export interface ZapOptions {
+    /**
+     * Your Sauce Labs username.
+     */
+    user: string
+    /**
+     * Your Sauce Labs access key.
+     */
+    key: string
+    /**
+     * Your Sauce Labs datacenter region. The following regions are available:
+     *
+     * - us-west-1 (short 'us') - not yet available
+     * - eu-central-1 (short 'eu') - not yet available
+     * - apac-southeast-1 (short 'apac')
+     *
+     * @default `apac`
+     */
+    region?: APAC_REGION
+}
+
 export default class Zap {
+    constructor (opts: ZapOptions): void
+
     /**
      * Your Sauce Labs username.
      */
