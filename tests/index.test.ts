@@ -177,6 +177,18 @@ test('can upload session directories', async () => {
     expect(uri).toBe('https://zap.apac-southeast-1.saucelabs.com/session/foobar/load')
 })
 
+test('can execute commands from the protocol', () => {
+    const api = new SauceLabs({ user: 'foo', key: 'bar' })
+    api.sessionId = 'foobar'
+
+    // @ts-expect-error
+    api.alert.alerts()
+    // @ts-expect-error
+    api.session.newSession()
+    // @ts-expect-error
+    api.openapi.importUrl({ url: 'foo' })
+})
+
 afterEach(() => {
     (got as any as jest.Mock).mockClear()
 })

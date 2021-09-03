@@ -10,7 +10,8 @@ export const BINDING_VERSION_NOTE = `node-zap v${version}`
 
 const protocols: OpenAPIV3.Document[] = [
     require('../build/api/zap.json'),
-    require('../build/api/sauce.json')
+    require('../build/api/sauce.json'),
+    require('../build/api/zapExtensions.json')
 ]
 
 export const API_DOMAINS = new Set()
