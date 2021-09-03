@@ -1,0 +1,496 @@
+openapi: "3.0.2"
+info:
+  title: OWASP ZAP Add-ons
+  description: Endpoints from ZAP extensions
+  contact:
+    name: Open Source Program Office
+    url: https://opensource.saucelabs.com
+    email: opensource@saucelabs.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: Dev Build
+servers:
+  - url: http://zap
+    description: The URL while proxying through ZAP.
+components:
+  securitySchemes:
+    apiKeyHeader:
+      type: apiKey
+      name: X-ZAP-API-Key
+      in: header
+    apiKeyQuery:
+      type: apiKey
+      name: apikey
+      in: query
+  schemas:
+    Error:
+      type: object
+      required:
+      - message
+      - code
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
+          minimum: 100
+          maximum: 600
+security:
+  - apiKeyHeader: []
+  - apiKeyQuery: []
+paths:
+  /JSON/soap/action/importFile/:
+    post:
+      description: >-
+        Import a WSDL definition from local file.
+      operationId: soapActionImportFile
+      tags:
+        - soap
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: file
+        in: query
+        required: false
+        deprecated: false
+        description: ""
+        schema:
+          type: string
+  /JSON/soap/action/importUrl/:
+    post:
+      description: >-
+        Import a WSDL definition from a URL.
+      operationId: soapActionImportUrl
+      tags:
+        - soap
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: url
+        in: query
+        required: false
+        deprecated: false
+        description: ""
+        schema:
+          type: string
+  /JSON/openapi/action/importFile/:
+    post:
+      description: >-
+        Imports an OpenAPI definition from a local file.
+      operationId: openapiActionImportFile
+      tags:
+        - openapi
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: file
+        in: query
+        required: false
+        deprecated: false
+        description: ""
+        schema:
+          type: string
+  /JSON/openapi/action/importUrl/:
+    post:
+      description: >-
+        Imports an OpenAPI definition from a URL.
+      operationId: openapiActionImportUrl
+      tags:
+        - openapi
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: url
+        in: query
+        required: false
+        deprecated: false
+        description: ""
+        schema:
+          type: string
+  /JSON/graphql/view/optionArgsType/:
+    post:
+      description: >-
+        Returns how arguments are currently specified.
+      operationId: graphqlViewOptionArgsType
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /JSON/graphql/view/optionLenientMaxQueryDepthEnabled/:
+    post:
+      description: >-
+        Returns whether or not lenient maximum query generation depth is enabled.
+      operationId: graphqlViewOptionLenientMaxQueryDepthEnabled
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /JSON/graphql/view/optionMaxAdditionalQueryDepth/:
+    post:
+      description: >-
+        Returns the current maximum additional query generation depth.
+      operationId: graphqlViewOptionMaxAdditionalQueryDepth
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /JSON/graphql/view/optionMaxArgsDepth/:
+    post:
+      description: >-
+        Returns the current maximum arguments generation depth.
+      operationId: graphqlViewOptionMaxArgsDepth
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /JSON/graphql/view/optionMaxQueryDepth/:
+    post:
+      description: >-
+        Returns the current maximum query generation depth.
+      operationId: graphqlViewOptionMaxQueryDepth
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /JSON/graphql/view/optionOptionalArgsEnabled/:
+    post:
+      description: >-
+        Returns whether or not optional arguments are currently specified.
+      operationId: graphqlViewOptionOptionalArgsEnabled
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /JSON/graphql/view/optionQuerySplitType/:
+    post:
+      description: >-
+        Returns the current level for which a single query is generated.
+      operationId: graphqlViewOptionQuerySplitType
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /JSON/graphql/view/optionRequestMethod/:
+    post:
+      description: >-
+        Returns the current request method.
+      operationId: graphqlViewOptionRequestMethod
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /JSON/graphql/action/importFile/:
+    post:
+      description: >-
+        Imports a GraphQL Schema from a File.
+      operationId: graphqlActionImportFile
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: endurl
+        in: query
+        required: false
+        deprecated: false
+        description: "The Endpoint URL."
+        schema:
+          type: string
+      - name: file
+        in: query
+        required: false
+        deprecated: false
+        description: "The File That Contains the GraphQL Schema."
+        schema:
+          type: string
+  /JSON/graphql/action/importUrl/:
+    post:
+      description: >-
+        Imports a GraphQL Schema from a URL.
+      operationId: graphqlActionImportUrl
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: endurl
+        in: query
+        required: false
+        deprecated: false
+        description: "The Endpoint URL."
+        schema:
+          type: string
+      - name: url
+        in: query
+        required: false
+        deprecated: false
+        description: "The URL Locating the GraphQL Schema."
+        schema:
+          type: string
+  /JSON/graphql/action/setOptionArgsType/:
+    post:
+      description: >-
+        Sets how arguments are specified.
+      operationId: graphqlActionSetOptionArgsType
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: String
+        in: query
+        required: false
+        deprecated: false
+        description: >-
+          Can be "INLINE", "VARIABLES", or "BOTH".
+        schema:
+          type: string
+          enum:
+            - INLINE
+            - VARIABLES
+            - BOTH
+  /JSON/graphql/action/setOptionLenientMaxQueryDepthEnabled/:
+    post:
+      description: >-
+        Sets whether or not Maximum Query Depth is enforced leniently.
+      operationId: graphqlActionSetOptionLenientMaxQueryDepthEnabled
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: Boolean
+        in: query
+        required: false
+        deprecated: false
+        description: >-
+          Enforce Leniently (true or false).
+        schema:
+          type: boolean
+  /JSON/graphql/action/setOptionMaxAdditionalQueryDepth/:
+    post:
+      description: >-
+        Sets the maximum additional query generation depth (used if enforced leniently).
+      operationId: graphqlActionSetOptionMaxAdditionalQueryDepth
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: Integer
+        in: query
+        required: false
+        deprecated: false
+        description: >-
+          The Maximum Additional Depth.
+        schema:
+          type: integer
+  /JSON/graphql/action/setOptionMaxArgsDepth/:
+    post:
+      description: >-
+        Sets the maximum arguments generation depth.
+      operationId: graphqlActionSetOptionMaxArgsDepth
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: Integer
+        in: query
+        required: false
+        deprecated: false
+        description: >-
+          The Maximum Depth.
+        schema:
+          type: integer
+  /JSON/graphql/action/setOptionMaxQueryDepth/:
+    post:
+      description: >-
+        Sets the maximum query generation depth.
+      operationId: graphqlActionSetOptionMaxQueryDepth
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: Integer
+        in: query
+        required: false
+        deprecated: false
+        description: >-
+          The Maximum Depth.
+        schema:
+          type: integer
+  /JSON/graphql/action/setOptionOptionalArgsEnabled/:
+    post:
+      description: >-
+        Sets whether or not Optional Arguments should be specified.
+      operationId: graphqlActionSetOptionOptionalArgsEnabled
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: Boolean
+        in: query
+        required: false
+        deprecated: false
+        description: >-
+          Specify Optional Arguments (true or false).
+        schema:
+          type: boolean
+  /JSON/graphql/action/setOptionQuerySplitType/:
+    post:
+      description: >-
+        Sets the level for which a single query is generated.
+      operationId: graphqlActionSetOptionQuerySplitType
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: String
+        in: query
+        required: false
+        deprecated: false
+        description: >-
+          Can be "LEAF", "ROOT_FIELD", or "OPERATION".
+        schema:
+          type: string
+          enum:
+            - LEAF
+            - ROOT_FIELD
+            - OPERATION
+  /JSON/graphql/action/setOptionRequestMethod/:
+    post:
+      description: >-
+        Sets the request method.
+      operationId: graphqlActionSetOptionRequestMethod
+      tags:
+        - graphql
+      responses:
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    parameters:
+      - name: String
+        in: query
+        required: false
+        deprecated: false
+        description: >-
+          	Can be "POST_JSON", "POST_GRAPHQL", or "GET".
+        schema:
+          type: string
+          enum:
+            - POST_JSON
+            - POST_GRAPHQL
+            - GET

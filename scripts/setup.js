@@ -9,6 +9,7 @@ const { camelCase } = require('change-case')
 
 const protocolUrls = {
     zap: 'https://raw.githubusercontent.com/zaproxy/zap-api-docs/master/openapi.yaml',
+    zapExtensions: 'https://raw.githubusercontent.com/saucelabs/node-zap/main/protocol/zapExtensions.yaml',
     sauce: 'https://raw.githubusercontent.com/saucelabs/node-zap/main/protocol/sauce.yaml'
 }
 
