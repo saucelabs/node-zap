@@ -12,19 +12,27 @@ export interface ProtocolCommand {
     responses: OpenAPIV3.ResponsesObject
 }
 
+export type SupportedRegions = 'apac' | 'apac-southeast-1'
+
 export interface Options {
     /**
-     * Your Sauce Labs username
+     * Your Sauce Labs username.
      */
     user: string
     /**
-     * Your Sauce Labs access key
+     * Your Sauce Labs access key.
      */
     key: string
     /**
-     * Region to run the test in (currently only APAC)
+     * Your Sauce Labs datacenter region. The following regions are available:
+     *
+     * - us-west-1 (short 'us') - not yet available
+     * - eu-central-1 (short 'eu') - not yet available
+     * - apac-southeast-1 (short 'apac')
+     *
+     * @default `apac`
      */
-    region: 'apac'
+    region: SupportedRegions
     /**
      * Provide a session id if you want to attach yourself
      * to a running session

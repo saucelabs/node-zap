@@ -1,4 +1,4 @@
-export type APAC_REGION = 'apac' | 'apac-southeast-1'
+export type SupportedRegions = 'apac' | 'apac-southeast-1'
 
 export interface ZapOptions {
     /**
@@ -18,7 +18,12 @@ export interface ZapOptions {
      *
      * @default `apac`
      */
-    region?: APAC_REGION
+    region?: SupportedRegions
+    /**
+     * Provide a session id if you want to attach yourself
+     * to a running session
+     */
+    sessionId?: string
 }
 
 export default class Zap {

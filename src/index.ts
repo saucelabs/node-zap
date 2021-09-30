@@ -13,13 +13,13 @@ import {
     SYMBOL_ITERATOR, TO_STRING_TAG, API_DOMAINS, SESSION_SUFFIXES,
     REPORT_COMMANDS
 } from './constants'
-import type { Options, ProtocolCommand, LoadSessionOpts } from './types'
+import type { Options, ProtocolCommand, LoadSessionOpts, SupportedRegions } from './types'
 
 
 
 export default class Zap {
     public user: string
-    public region: string
+    public region: SupportedRegions
     public sessionId?: string
 
     private _options: Options
@@ -28,14 +28,18 @@ export default class Zap {
     private _proxy: Zap
     private _hasSessionClosed = false
 
-    constructor (public options?: Partial<Options>) {
-        const opts = Object.assign({}, DEFAULT_OPTIONS, options || {})
+    constructor (public options: Options) {
+        const opts: Options = Object.assign(
+            {},
+            DEFAULT_OPTIONS,
+            options || {}
+        )
 
         if (!opts.user || !opts.key) {
             throw new Error('"user" or "key" parameters missing')
         }
 
-        this._options = opts as Options
+        this._options = opts
         this.region = opts.region
         this.user = opts.user
         this.sessionId = opts.sessionId
