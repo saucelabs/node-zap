@@ -4,6 +4,7 @@ const gotMock = jest.fn()
 gotMock.get = gotMock
 gotMock.put = gotMock
 gotMock.post = gotMock
+gotMock.delete = gotMock
 gotMock.extend = jest.fn().mockReturnValue(gotMock)
 gotMock.setHeader = (header) => (headers = header)
 

@@ -46,6 +46,24 @@ import SauceZAP from '@saucelabs/zap'
 
 __Note:__ you can find a complete example in [/examples/spider.ts](https://github.com/saucelabs/node-zap/blob/main/example/spider.ts)
 
+### Attach to an Existing Session
+
+If you already have a session running and you want to attach to it, you can do that by passing in the desired session id, e.g.:
+
+```js
+const zaproxy = new SauceZAP({
+    user: process.env.SAUCE_USERNAME,
+    key: process.env.SAUCE_ACCESS_KEY,
+    region: 'apac',
+    sessionId: 'a71199b9-6016-4abd-a582-5b14f965a413'
+});
+
+/**
+ * no `newSession` call needed, you can immeditially run commands
+ */
+const { scan } = await zaproxy.spider.scan({ url: 'https://saucedemo.com' })
+```
+
 ## API
 
 For a full API list, see [https://www.zaproxy.org/docs/api](zaproxy.org/docs/api). The Node API methods have the same signature as the API documentation.

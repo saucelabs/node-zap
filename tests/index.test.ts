@@ -191,7 +191,7 @@ test('can execute commands from the protocol', () => {
     // @ts-expect-error
     api.alert.alerts()
     // @ts-expect-error
-    api.session.loadSession()
+    api.session.deleteSession()
     // @ts-expect-error
     api.openapi.importUrl({ url: 'foo' })
 })
