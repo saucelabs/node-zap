@@ -79,6 +79,13 @@ test('should allow to call an API method with param in url', async () => {
         .toBe('https://zap.apac-southeast-1.saucelabs.com/JSON/alert/view/alerts/')
 })
 
+test('should not allow to create a new session if already attached to one', async () => {
+    const api = new SauceLabs({ user: 'foo', key: 'bar', sessionId: 'foobar' })
+    expect(api.sessionId).toBe('foobar')
+    // @ts-expect-error
+    expect(() => api.newSession()).toThrow(/Can't call "newSession"/)
+})
+
 test('should allow to call an API method with param as option', async () => {
     const api = new SauceLabs({ user: 'foo', key: 'bar' })
     api.sessionId = 'foobar'
@@ -184,7 +191,7 @@ test('can execute commands from the protocol', () => {
     // @ts-expect-error
     api.alert.alerts()
     // @ts-expect-error
-    api.session.newSession()
+    api.session.loadSession()
     // @ts-expect-error
     api.openapi.importUrl({ url: 'foo' })
 })

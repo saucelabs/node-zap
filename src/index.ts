@@ -38,6 +38,7 @@ export default class Zap {
         this._options = opts as Options
         this.region = opts.region
         this.user = opts.user
+        this.sessionId = opts.sessionId
 
         this._accessKey = this._options.key
         this._api = got.extend({
@@ -108,6 +109,13 @@ export default class Zap {
          */
         if (Boolean(scope.domain) && scope.domain !== 'session' && propName !== 'newSession' && !this.sessionId) {
             throw new Error(`Couldn't call command "${propName}", reason: not authenticated! Please call \`zap.session.new({ ... })\` first to authenticate with Sauce Labs cloud.`)
+        }
+
+        /**
+         * ensure user can only run one session per instance
+         */
+        if (propName === 'newSession' && this.sessionId) {
+            throw new Error(`Can't call "${propName}" because your instance is already attached to a session with id ${this.sessionId}`)
         }
 
         /**
@@ -245,7 +253,7 @@ export default class Zap {
                 }
 
                 return response.body
-            } catch (err) {
+            } catch (err: any) {
                 throw new Error(`Failed calling ${propName as string}: ${err.message}, ${err.response && JSON.stringify(err.response.body)}`)
             }
         }
@@ -292,7 +300,7 @@ export default class Zap {
             }) as any
 
             return response.body
-        } catch (err) {
+        } catch (err: any) {
             throw new Error(`Failed loading session from "${opts.path}": ${err.message}`)
         }
     }

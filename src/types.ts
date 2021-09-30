@@ -13,9 +13,26 @@ export interface ProtocolCommand {
 }
 
 export interface Options {
+    /**
+     * Your Sauce Labs username
+     */
     user: string
+    /**
+     * Your Sauce Labs access key
+     */
     key: string
+    /**
+     * Region to run the test in (currently only APAC)
+     */
     region: 'apac'
+    /**
+     * Provide a session id if you want to attach yourself
+     * to a running session
+     */
+    sessionId?: string
+    /**
+     * Custom headers (optional)
+     */
     headers?: Record<string, string>
 }
 
