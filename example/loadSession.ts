@@ -1,8 +1,11 @@
 import SauceZap from '../build'
 
 /**
- * run `npx ts-node ./example/getAsset.ts` before to get this
- * asset file, session id was: 6989f9e6-7c5c-4208-8585-d57cfadc3158
+ * In order to run this example, run:
+ *   - the asset example `npx ts-node ./example/getAsset.ts` first
+ *   - unpack the `session.tar.gz`
+ *   - copy the session id from the session file names into the `name` parameter
+ *   - run this example
  */
 const sessionToLoad = __dirname + '/session'
 const testStart = Date.now()
@@ -20,7 +23,7 @@ const testStart = Date.now()
      */
     await zaproxy.session.loadSession({
         path: sessionToLoad,
-        name: '6989f9e6-7c5c-4208-8585-d57cfadc3158'
+        name: 'ac6f4970-c380-47b8-a9b9-a1dc038b1f76'
     })
 
     /**

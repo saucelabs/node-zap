@@ -2,13 +2,15 @@ export type SupportedRegions = 'apac' | 'apac-southeast-1'
 
 export interface ZapOptions {
     /**
-     * Your Sauce Labs username.
+     * Your Sauce Labs username. Can also be set via `SAUCE_USERNAME` environment
+     * variable.
      */
-    user: string
+    user?: string
     /**
-     * Your Sauce Labs access key.
+     * Your Sauce Labs access key. Can also be set via `SAUCE_ACCESS_KEY` environment
+     * variable.
      */
-    key: string
+    key?: string
     /**
      * Your Sauce Labs datacenter region. The following regions are available:
      *
@@ -21,13 +23,13 @@ export interface ZapOptions {
     region?: SupportedRegions
     /**
      * Provide a session id if you want to attach yourself
-     * to a running session
+     * to a running session (in which case you don't need to call `newSession`).
      */
     sessionId?: string
 }
 
 export default class Zap {
-    constructor (opts: ZapOptions): void
+    constructor (opts?: ZapOptions): void
 
     /**
      * Your Sauce Labs username.

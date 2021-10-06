@@ -86,7 +86,7 @@ paths:
         in: body
         required: false
         deprecated: false
-        description: "initiate session with existing Zap session"
+        description: "initiate session with data captured from a WebDriver test"
         schema:
           type: string
       - name: name
