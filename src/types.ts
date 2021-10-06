@@ -19,12 +19,12 @@ export interface Options {
      * Your Sauce Labs username. Can also be set via `SAUCE_USERNAME` environment
      * variable.
      */
-    user?: string
+    user: string
     /**
      * Your Sauce Labs access key. Can also be set via `SAUCE_ACCESS_KEY` environment
      * variable.
      */
-    key?: string
+    key: string
     /**
      * Your Sauce Labs datacenter region. The following regions are available:
      *
@@ -34,12 +34,16 @@ export interface Options {
      *
      * @default `apac`
      */
-    region?: SupportedRegions
+    region: SupportedRegions
     /**
      * Provide a session id if you want to attach yourself
      * to a running session (in which case you don't need to call `newSession`).
      */
     sessionId?: string
+    /**
+     * custom headers
+     */
+    headers?: Record<string, string>
 }
 
 export interface LoadSessionOpts {
