@@ -1,6 +1,4 @@
-<p align="center">
-    <img src="https://raw.githubusercontent.com/saucelabs/node-zap/main/.github/assets/saucebot-infosec.png?token=AAFSRSID47JSIH65HJLCFMLBALHS2" alt="Saucebot Infosec" />
-</p>
+
 
 # Sauce Labs OWASP ZAP Node API [![Test Changes](https://github.com/saucelabs/node-zap/actions/workflows/test.yml/badge.svg)](https://github.com/saucelabs/node-zap/actions/workflows/test.yml)
 
